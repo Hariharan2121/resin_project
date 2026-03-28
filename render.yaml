@@ -1,0 +1,18 @@
+services:
+  # Backend Service
+  - type: web
+    name: rkl-trove-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - fromGroup: rkl-secrets # We'll define this in the dashboard
+
+  # Database (Render offers Managed PostgreSQL for free, but for MySQL you'll need a different connection)
+  # Note: Render doesn't have a free MySQL tier. I recommend using Aiven.io (Free MySQL) 
+  # or switching the backend to PostgreSQL (very common for deployment).
