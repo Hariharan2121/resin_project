@@ -1,31 +1,23 @@
 const mysql = require('mysql2/promise')
 require('dotenv').config()
+const { Pool } = require('pg');
+require('dotenv').config();
 
 /**
- * Creates and exports a MySQL connection pool.
+ * Creates and exports a PostgreSQL connection pool.
  * Using a pool allows concurrent requests without creating a new connection
  * for every database query.
  */
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'rkl_trove',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-})
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Add SSL for live Render database
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
-// Test connection on startup
-pool.getConnection()
-  .then(conn => {
-    console.log('✅  MySQL connected successfully.')
-    conn.release()
-  })
-  .catch(err => {
-    console.error('❌  MySQL connection failed:', err.message)
-    process.exit(1)
-  })
+// Helper to use the same query syntax as mysql2 (for minimal changes elsewhere)
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+  pool
+};
 
-module.exports = pool
+console.log('✅ PostgreSQL connection pool initialized.');
