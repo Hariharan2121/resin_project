@@ -1,24 +1,28 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// FORCE the use of the live URL. If it's missing, we want a clear error.
+console.log('--- 🔍 DATABASE DEBUG INFO ---');
+console.log('Available Env Keys:', Object.keys(process.env).filter(k => k.includes('DB') || k.includes('URL')));
+
 const connectionString = process.env.DB_LIVE_URL || process.env.DATABASE_URL;
 
-console.log('DB URL:', process.env.DATABASE_URL);
-console.log('DB URL:', process.env.DB_LIVE_URL);
-
 if (!connectionString) {
-  console.error('❌ CRITICAL ERROR: No database URL found in environment variables (DB_LIVE_URL or DATABASE_URL).');
+  console.error('❌ FATAL ERROR: No connection string found! Falling back to localhost.');
+} else {
+  console.log('🔗 Connection string found. Starts with:', connectionString.substring(0, 10));
 }
 
 const pool = new Pool({
   connectionString: connectionString,
+  // Only use SSL if there is a connection string (aka production)
   ssl: connectionString ? { rejectUnauthorized: false } : false
 });
 
 const initDb = async () => {
   try {
     console.log('⏳ Verifying database tables...');
+    await pool.query('SELECT NOW()');
+    
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -62,18 +66,7 @@ const initDb = async () => {
       );
     `);
 
-    const { rows } = await pool.query('SELECT count(*) FROM products');
-    if (parseInt(rows[0].count) === 0) {
-      await pool.query(`
-        INSERT INTO products (name, price, image_url, category) VALUES
-        ('Blue Ocean Tray', 1200, '/images/product_1.jpg', 'Trays'),
-        ('Crystal Coasters', 450, '/images/product_2.jpg', 'Coasters'),
-        ('Floral Pendant', 800, '/images/product_3.jpg', 'Jewelry'),
-        ('Golden Clock', 2500, '/images/product_4.jpg', 'Clocks')
-      `);
-      console.log('🌱 Database seeded with dummy products.');
-    }
-    console.log('✅ PostgreSQL ready.');
+    console.log('✅ PostgreSQL tables verified.');
   } catch (err) {
     console.error('❌ Database init failed:', err.message);
   }
