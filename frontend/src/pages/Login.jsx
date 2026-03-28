@@ -17,12 +17,14 @@ export default function Login() {
   const handleSubmit = async e => {
     e.preventDefault()
     if (!form.email || !form.password) return toast.error('Please fill all fields.')
+    
+    const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/login`;
+    console.log('Attempting login to:', apiUrl);
+    // toast.loading(`Connecting to: ${apiUrl}`); // Temporary debug
+    
     setLoading(true)
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/login`,
-        form
-      )
+      const res = await axios.post(apiUrl, form)
       login(res.data.user, res.data.token)
       toast.success(`Welcome back, ${res.data.user.name}!`)
       navigate('/')
