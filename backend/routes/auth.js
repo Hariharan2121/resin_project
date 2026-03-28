@@ -157,8 +157,8 @@ router.post('/auth/verify-otp', async (req, res) => {
   if (!email || !otp) return res.status(400).json({ success: false, message: 'Email and OTP are required.' })
 
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM password_resets WHERE email = ? AND otp = ? AND used = 0 ORDER BY created_at DESC LIMIT 1',
+    const { rows } = await pool.query(
+      'SELECT * FROM password_resets WHERE email = $1 AND otp = $2 AND used = FALSE ORDER BY created_at DESC LIMIT 1',
       [email.toLowerCase(), otp]
     )
     if (rows.length === 0) {
@@ -192,8 +192,8 @@ router.post('/auth/reset-password', async (req, res) => {
   }
 
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM password_resets WHERE email = ? AND otp = ? AND used = 0 ORDER BY created_at DESC LIMIT 1',
+    const { rows } = await pool.query(
+      'SELECT * FROM password_resets WHERE email = $1 AND otp = $2 AND used = FALSE ORDER BY created_at DESC LIMIT 1',
       [email.toLowerCase(), otp]
     )
     if (rows.length === 0) {
@@ -204,9 +204,9 @@ router.post('/auth/reset-password', async (req, res) => {
     }
 
     const hashed = await bcrypt.hash(newPassword, 10)
-    await pool.query('UPDATE users SET password = ? WHERE email = ?', [hashed, email.toLowerCase()])
+    await pool.query('UPDATE users SET password = $1 WHERE email = $2', [hashed, email.toLowerCase()])
     await pool.query(
-      'UPDATE password_resets SET used = 1 WHERE email = ? AND otp = ?',
+      'UPDATE password_resets SET used = TRUE WHERE email = $1 AND otp = $2',
       [email.toLowerCase(), otp]
     )
 
