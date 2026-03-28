@@ -59,4 +59,36 @@ router.get('/:id', async (req, res) => {
   }
 })
 
+/**
+ * GET /api/products/reset
+ * Manual reset to force the 16 products.
+ */
+router.get('/reset', async (req, res) => {
+  try {
+    await pool.query('TRUNCATE TABLE products CASCADE');
+    await pool.query(`
+      INSERT INTO products (name, price, image_url, description) VALUES
+      ('Coastal Collection - ocean whisper', 249.00, '/images/product_2.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Coastal Collection - Obsidian shore', 249.00, '/images/product_3.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Coastal Collection - velvet Tide', 249.00, '/images/product_4.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Forever Collection - forever bloom', 899.00, '/images/product_5.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Forever Collection - evergreen Promise', 1299.00, '/images/product_6.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Charm Collection - Petal drop silver', 349.00, '/images/product_7.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Charm Collection - Petal drop Gold', 349.00, '/images/product_8.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Charm Collection - Evil eye Pendant Gold', 374.00, '/images/product_9.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Initial Collection - Duo initials', 349.00, '/images/product_10.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Chrono Collection - Aqua chrona', 599.00, '/images/product_11.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Forever Collection - crystal bloom', 2499.00, '/images/product_12.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Chrono Collection - obsidian hour', 1199.00, '/images/product_13.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Luxe Pot collection - Opaline Luxe 1', 299.00, '/images/product_14.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Luxe Pot collection - Opaline Luxe 2', 399.00, '/images/product_15.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Luxe Pot collection - Opaline Luxe 3', 499.00, '/images/product_16.jpg', 'Handcrafted resin art - product is so gooood'),
+      ('Luxe Pot collection - Opaline Luxe 4', 359.00, '/images/product_1.jpg', 'Handcrafted resin art - product is so gooood')
+    `);
+    res.json({ message: 'Database reset and 16 products seeded successfully!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router
