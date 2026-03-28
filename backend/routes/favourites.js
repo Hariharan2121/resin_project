@@ -24,8 +24,8 @@ router.get('/', authMiddleware, async (req, res) => {
 /**
  * POST /api/favourites/:productId
  */
-router.post('/:productId?', authMiddleware, async (req, res) => {
-  const productId = req.params.productId || req.body.productId
+router.post('/', authMiddleware, async (req, res) => {
+  const productId = req.body.productId || req.params.productId
   if (!productId) return res.status(400).json({ message: 'Product ID required.' })
   try {
     await pool.query(
