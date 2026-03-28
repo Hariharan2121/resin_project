@@ -10,9 +10,10 @@ router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
     
-    // If no products, seed your real 16 products
-    if (result.rows.length === 0) {
-      console.log('🌱 Seeding your 16 real products...');
+    // If the count is wrong (e.g. only 4 dummy products), clear and seed the real 16
+    if (result.rows.length < 16) {
+      console.log('🔄 Cleaning up old data and seeding your 16 real products...');
+      await pool.query('TRUNCATE TABLE products CASCADE');
       await pool.query(`
         INSERT INTO products (name, price, image_url, description) VALUES
         ('Coastal Collection - ocean whisper', 249.00, '/images/product_2.jpg', 'Handcrafted resin art - product is so gooood'),
