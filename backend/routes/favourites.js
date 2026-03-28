@@ -24,8 +24,9 @@ router.get('/', authMiddleware, async (req, res) => {
 /**
  * POST /api/favourites/:productId
  */
-router.post('/:productId', authMiddleware, async (req, res) => {
-  const { productId } = req.params
+router.post('/:productId?', authMiddleware, async (req, res) => {
+  const productId = req.params.productId || req.body.productId
+  if (!productId) return res.status(400).json({ message: 'Product ID required.' })
   try {
     await pool.query(
       'INSERT INTO favourites (user_id, product_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
