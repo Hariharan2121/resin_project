@@ -8,7 +8,7 @@ const pool = new Pool({
 
 const initDb = async () => {
   try {
-    // Create Users table
+    console.log('⏳ Initializing database tables...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -19,7 +19,6 @@ const initDb = async () => {
       );
     `);
 
-    // Create Products table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
         id SERIAL PRIMARY KEY,
@@ -32,7 +31,6 @@ const initDb = async () => {
       );
     `);
 
-    // Create Password Resets table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS password_resets (
         id SERIAL PRIMARY KEY,
@@ -44,7 +42,6 @@ const initDb = async () => {
       );
     `);
 
-    // Create Favourites table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS favourites (
         id SERIAL PRIMARY KEY,
@@ -55,7 +52,6 @@ const initDb = async () => {
       );
     `);
 
-    // Seed dummy products if empty
     const { rows } = await pool.query('SELECT count(*) FROM products');
     if (parseInt(rows[0].count) === 0) {
       await pool.query(`
@@ -76,7 +72,4 @@ const initDb = async () => {
 
 initDb();
 
-module.exports = {
-  query: (text, params) => pool.query(text, params),
-  pool
-};
+module.exports = pool;

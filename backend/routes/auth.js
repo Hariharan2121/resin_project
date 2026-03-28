@@ -102,9 +102,9 @@ router.post('/auth/forgot-password', async (req, res) => {
     const otp = String(Math.floor(100000 + Math.random() * 900000))
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
-    await pool.query('DELETE FROM password_resets WHERE email = $1 AND used = 0', [email.toLowerCase()])
+    await pool.query('DELETE FROM password_resets WHERE email = $1 AND used = FALSE', [email.toLowerCase()])
     await pool.query(
-      'INSERT INTO password_resets (email, otp, expires_at, used) VALUES ($1, $2, $3, 0)',
+      'INSERT INTO password_resets (email, otp, expires_at, used) VALUES ($1, $2, $3, FALSE)',
       [email.toLowerCase(), otp, expiresAt]
     )
 
