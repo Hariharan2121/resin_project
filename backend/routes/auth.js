@@ -26,19 +26,19 @@ router.post('/signup', async (req, res) => {
 
   try {
     // Check if email already exists
-    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email.toLowerCase()])
+    const { rows: existing } = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()])
     if (existing.length > 0) {
       return res.status(409).json({ message: 'An account with this email already exists.' })
     }
 
     // Hash password and insert user
     const hashed = await bcrypt.hash(password, SALT_ROUNDS)
-    const [result] = await pool.query(
-      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+    const result = await pool.query(
+      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id',
       [name.trim(), email.toLowerCase(), hashed]
     )
 
-    const user = { id: result.insertId, name: name.trim(), email: email.toLowerCase() }
+    const user = { id: result.rows[0].id, name: name.trim(), email: email.toLowerCase() }
     const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRES })
 
     res.status(201).json({ token, user })
@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email.toLowerCase()])
+    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()])
     if (rows.length === 0) {
       return res.status(401).json({ message: 'Invalid email or password.' })
     }
@@ -94,20 +94,17 @@ router.post('/auth/forgot-password', async (req, res) => {
   if (!email) return res.status(400).json({ success: false, message: 'Email is required.' })
 
   try {
-    const [rows] = await pool.query('SELECT id FROM users WHERE email = ?', [email.toLowerCase()])
+    const { rows } = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()])
     if (rows.length === 0) {
       return res.status(404).json({ success: false, message: 'No account found with this email.' })
     }
 
     const otp = String(Math.floor(100000 + Math.random() * 900000))
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
-    // .toISOString()
-    // .slice(0, 19)
-    // .replace('T', ' ')
 
-    await pool.query('DELETE FROM password_resets WHERE email = ? AND used = 0', [email.toLowerCase()])
+    await pool.query('DELETE FROM password_resets WHERE email = $1 AND used = 0', [email.toLowerCase()])
     await pool.query(
-      'INSERT INTO password_resets (email, otp, expires_at, used) VALUES (?, ?, ?, 0)',
+      'INSERT INTO password_resets (email, otp, expires_at, used) VALUES ($1, $2, $3, 0)',
       [email.toLowerCase(), otp, expiresAt]
     )
 
