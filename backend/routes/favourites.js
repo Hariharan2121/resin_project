@@ -14,7 +14,7 @@ router.get('/', authMiddleware, async (req, res) => {
        WHERE f.user_id = $1`,
       [req.user.id]
     )
-    res.json(rows)
+    res.json({ data: rows })
   } catch (err) {
     console.error('[Get Favourites Error]', err)
     res.status(500).json({ message: 'Failed to fetch favourites.' })
