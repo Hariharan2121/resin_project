@@ -1,16 +1,14 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+if (!process.env.DATABASE_URL) {
+  console.error('❌ FATAL ERROR: DATABASE_URL is missing! Please add it to your Render Environment variables.');
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
-
-if (!process.env.DATABASE_URL) {
-  console.error('⚠️  WARNING: DATABASE_URL is not set! Falling back to localhost:5432.');
-} else {
-  console.log('🔗 Connecting to database URL starting with:', process.env.DATABASE_URL.substring(0, 10), '...');
-}
 
 const initDb = async () => {
   try {
