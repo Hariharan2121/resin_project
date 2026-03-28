@@ -1,18 +1,21 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-if (!process.env.DB_LIVE_URL) {
-  console.error('❌ FATAL ERROR: DB_LIVE_URL is missing! Please ADD it manually on Render.');
+// FORCE the use of the live URL. If it's missing, we want a clear error.
+const connectionString = process.env.DB_LIVE_URL || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('❌ CRITICAL ERROR: No database URL found in environment variables (DB_LIVE_URL or DATABASE_URL).');
 }
 
 const pool = new Pool({
-  connectionString: process.env.DB_LIVE_URL,
-  ssl: process.env.DB_LIVE_URL ? { rejectUnauthorized: false } : false
+  connectionString: connectionString,
+  ssl: connectionString ? { rejectUnauthorized: false } : false
 });
 
 const initDb = async () => {
   try {
-    console.log('⏳ Initializing database tables...');
+    console.log('⏳ Verifying database tables...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -67,10 +70,9 @@ const initDb = async () => {
       `);
       console.log('🌱 Database seeded with dummy products.');
     }
-
-    console.log('✅ PostgreSQL tables verified/created.');
+    console.log('✅ PostgreSQL ready.');
   } catch (err) {
-    console.error('❌ Database initialization failed:', err);
+    console.error('❌ Database init failed:', err.message);
   }
 };
 
