@@ -1,13 +1,13 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-if (!process.env.DATABASE_URL) {
-  console.error('❌ FATAL ERROR: DATABASE_URL is missing! Please add it to your Render Environment variables.');
+if (!process.env.DB_LIVE_URL) {
+  console.error('❌ FATAL ERROR: DB_LIVE_URL is missing! Please ADD it manually on Render.');
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  connectionString: process.env.DB_LIVE_URL,
+  ssl: process.env.DB_LIVE_URL ? { rejectUnauthorized: false } : false
 });
 
 const initDb = async () => {
