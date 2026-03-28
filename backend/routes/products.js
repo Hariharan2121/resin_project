@@ -10,7 +10,11 @@ router.get('/', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM products ORDER BY id ASC')
     res.json(rows)
   } catch (err) {
-    console.error('[Get Products Error]', err)
+    if (err.message.includes('does not exist')) {
+      console.error('❌ PRODUCTS TABLE MISSING. Server might still be initializing database.');
+      return res.status(503).json({ message: 'Database is still initializing. Please refresh in 10 seconds.' })
+    }
+    console.error('[Get Products Error]', err.message)
     res.status(500).json({ message: 'Failed to fetch products.' })
   }
 })
