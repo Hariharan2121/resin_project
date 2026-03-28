@@ -41,6 +41,17 @@ app.use('/api/favourites', favouritesRoutes)
 // Health check
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
+// Database check
+app.get('/api/test-db', async (_req, res) => {
+  const db = require('./db');
+  try {
+    const result = await db.query('SELECT NOW()');
+    res.json({ success: true, time: result.rows[0].now, message: 'Database connected!' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // 404 handler
 app.use((_req, res) => res.status(404).json({ message: 'Route not found.' }))
 
