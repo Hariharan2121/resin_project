@@ -4,6 +4,9 @@ require('dotenv').config();
 // FORCE the use of the live URL. If it's missing, we want a clear error.
 const connectionString = process.env.DB_LIVE_URL || process.env.DATABASE_URL;
 
+console.log('DB URL:', process.env.DATABASE_URL);
+console.log('DB URL:', process.env.DB_LIVE_URL);
+
 if (!connectionString) {
   console.error('❌ CRITICAL ERROR: No database URL found in environment variables (DB_LIVE_URL or DATABASE_URL).');
 }
