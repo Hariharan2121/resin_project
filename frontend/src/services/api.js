@@ -23,13 +23,28 @@ api.interceptors.request.use((config) => {
 export const getProducts = async () => {
   try {
     const response = await api.get('/api/products');
-    console.log('API response (getProducts):', response.data);
-    if (response.data.success) {
-      return response.data.data;
+    const rawData = response.data;
+    
+    console.log('💎 Raw API Data Received:', rawData);
+    
+    // 1. Check for newized format { success: true, data: [...] }
+    if (rawData && rawData.success === true && Array.isArray(rawData.data)) {
+      return rawData.data;
     }
+    
+    // 2. Check for legacy raw array [...]
+    if (Array.isArray(rawData)) {
+      return rawData;
+    }
+
+    // 3. Check for any nested data property (Defensive)
+    if (rawData && Array.isArray(rawData.products)) {
+      return rawData.products;
+    }
+    
     return [];
   } catch (error) {
-    console.error('Fetch products error:', error);
+    console.error('❌ Fetch products error:', error);
     return [];
   }
 };

@@ -31,10 +31,19 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         const data = await getProducts();
-        console.log('Products in state (Home):', data);
-        setProducts(Array.isArray(data) ? data : []);
+        console.log('✅ Data received in Home.jsx:', data);
+        console.log('📊 Is valid array?', Array.isArray(data));
+        console.log('🔢 Length:', data?.length);
+        
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+          console.log('🚀 State successfully updated with', data.length, 'products');
+        } else {
+          console.warn('⚠️ Received empty or invalid data in Home.jsx');
+          setProducts([]);
+        }
       } catch (error) {
-        console.error('Error loading products:', error);
+        console.error('❌ Error loading products:', error);
         setProducts([]);
         setError('Failed to load products. Is the backend running?');
       } finally {
