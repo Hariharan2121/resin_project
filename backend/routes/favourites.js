@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const pool = require('../db')
+const db = require('../config/db')
 const authMiddleware = require('../middleware/authMiddleware')
 
 /**
@@ -8,13 +8,21 @@ const authMiddleware = require('../middleware/authMiddleware')
  */
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT p.* FROM products p
+    const [rows] = await db.query(
+      `SELECT p.id, p.name, p.price, p.image_url, p.description, p.created_at FROM products p
        JOIN favourites f ON p.id = f.product_id
-       WHERE f.user_id = $1`,
+       WHERE f.user_id = ?`,
       [req.user.id]
     )
-    res.json({ data: rows })
+    
+    // Formatting price and description for frontend consistency
+    const data = rows.map(p => ({
+      ...p,
+      price: parseFloat(p.price) || 0,
+      description: p.description || ''
+    }));
+
+    res.json({ success: true, data })
   } catch (err) {
     console.error('[Get Favourites Error]', err)
     res.status(500).json({ message: 'Failed to fetch favourites.' })
@@ -22,17 +30,18 @@ router.get('/', authMiddleware, async (req, res) => {
 })
 
 /**
- * POST /api/favourites/:productId
+ * POST /api/favourites
  */
 router.post('/', authMiddleware, async (req, res) => {
-  const productId = req.body.productId || req.params.productId
+  const productId = req.body.productId
   if (!productId) return res.status(400).json({ message: 'Product ID required.' })
   try {
-    await pool.query(
-      'INSERT INTO favourites (user_id, product_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+    // MySQL equivalent of ON CONFLICT DO NOTHING is INSERT IGNORE
+    await db.query(
+      'INSERT IGNORE INTO favourites (user_id, product_id) VALUES (?, ?)',
       [req.user.id, productId]
     )
-    res.json({ message: 'Added to favourites.' })
+    res.json({ success: true, message: 'Updated favourites.' })
   } catch (err) {
     console.error('[Add Favourite Error]', err)
     res.status(500).json({ message: 'Failed to add to favourites.' })
@@ -45,11 +54,11 @@ router.post('/', authMiddleware, async (req, res) => {
 router.delete('/:productId', authMiddleware, async (req, res) => {
   const { productId } = req.params
   try {
-    await pool.query(
-      'DELETE FROM favourites WHERE user_id = $1 AND product_id = $2',
+    await db.query(
+      'DELETE FROM favourites WHERE user_id = ? AND product_id = ?',
       [req.user.id, productId]
     )
-    res.json({ message: 'Removed from favourites.' })
+    res.json({ success: true, message: 'Removed from favourites.' })
   } catch (err) {
     console.error('[Remove Favourite Error]', err)
     res.status(500).json({ message: 'Failed to remove from favourites.' })

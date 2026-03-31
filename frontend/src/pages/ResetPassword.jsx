@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Gem, Loader2, KeyRound, Eye, EyeOff } from 'lucide-react'
+import { Loader2, KeyRound, Eye, EyeOff, Sparkles, ShieldAlert, CheckCircle2 } from 'lucide-react'
 import { resetPassword } from '../services/api'
 
 function getStrength(password) {
@@ -9,15 +9,14 @@ function getStrength(password) {
   if (password.length >= 8) score++
   if (/\d/.test(password)) score++
   if (/[^a-zA-Z0-9]/.test(password)) score++
-  if (score === 0 && password.length > 0) score = 0
-  return score // 0: none, 1: weak, 2: medium, 3: strong
+  return score 
 }
 
 const strengthConfig = {
-  0: { label: '', color: '#e5e7eb', bars: 0 },
-  1: { label: 'Weak', color: '#ef4444', bars: 1 },
-  2: { label: 'Medium', color: '#f97316', bars: 2 },
-  3: { label: 'Strong', color: '#22c55e', bars: 3 },
+  0: { label: 'Fragile', color: '#666' },
+  1: { label: 'Soft', color: '#E74C3C' },
+  2: { label: 'Solid', color: '#F39C12' },
+  3: { label: 'Crystaline', color: '#C87941' },
 }
 
 export default function ResetPassword() {
@@ -30,6 +29,7 @@ export default function ResetPassword() {
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [focusedField, setFocusedField] = useState(null)
 
   useEffect(() => {
     if (!email || !otp) navigate('/forgot-password', { replace: true })
@@ -42,133 +42,167 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (form.newPassword.length < 6) return toast.error('Password must be at least 6 characters.')
-    if (form.newPassword !== form.confirm) return toast.error('Passwords do not match.')
+    if (form.newPassword.length < 6) return toast.error('Key must be at least 6 characters.')
+    if (form.newPassword !== form.confirm) return toast.error('Keys do not match.')
     setLoading(true)
     try {
       await resetPassword(email, otp, form.newPassword)
-      toast.success('Password reset successfully! Please login.')
+      toast.success('Your new key has been forged!', {
+        icon: '💎',
+        style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+      })
       setTimeout(() => navigate('/login', { replace: true }), 2000)
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Reset failed. Please try again.')
+      toast.error(err.response?.data?.message || 'Failed to forge key.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-cream-100 to-cream-200 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl shadow-card p-8 sm:p-10 animate-slide-up">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-50 mb-4">
-              <KeyRound size={28} className="text-amber-600" />
-            </div>
-            <h1 className="font-serif text-3xl font-semibold text-stone-800">Reset Password</h1>
-            <p className="text-sm text-stone-500 mt-1">Choose a strong new password</p>
+    <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans relative overflow-hidden flex items-center justify-center px-4">
+      {/* Background Dot Grid */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
+           style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+      
+      <div className="w-full max-w-md relative z-10 animate-fade-slide-up py-10">
+        <div className="text-center mb-10">
+          <div className="inline-block relative group mb-6">
+             <div className="w-16 h-16 rounded-full border border-[#EDD9C0] bg-white flex items-center justify-center shadow-md transition-transform duration-500 group-hover:scale-110">
+                <KeyRound className="text-[#C87941]" size={24} />
+             </div>
+             <div className="absolute -inset-4 bg-[#C87941]/5 rounded-full blur-xl" />
           </div>
+          <h1 className="text-4xl font-serif font-bold text-[#2C1810]">Forge New Key</h1>
+          <p className="text-[#9C7B65] mt-2 font-light italic">Secure your presence in the Trove</p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div className="bg-white rounded-[32px] p-8 sm:p-12 border border-[#EDD9C0] shadow-[0_12px_40px_rgba(44,26,14,0.06)]">
+          <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+            
             {/* New Password */}
-            <div>
-              <label htmlFor="rp-new" className="form-label">New Password</label>
-              <div className="relative">
+            <div className="space-y-2">
+              <label htmlFor="rp-new" className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C87941] ml-4">NEW ACCESS KEY</label>
+              <div className={`relative flex items-center bg-[#FBF5EE] border-[1.5px] rounded-full h-14 transition-all duration-300 ${focusedField === 'newPassword' ? 'border-[#C87941] ring-4 ring-[#C87941]/5 bg-white' : 'border-[#DEC5A8]'}`}>
                 <input
                   id="rp-new"
                   name="newPassword"
                   type={showNew ? 'text' : 'password'}
                   required
-                  className="input-field pr-11"
-                  placeholder="Min. 6 characters"
+                  onFocus={() => setFocusedField('newPassword')}
+                  onBlur={() => setFocusedField(null)}
+                  className="w-full h-full bg-transparent border-none outline-none pl-6 pr-12 text-[#2C1810] placeholder:text-[#C4A882]/70 placeholder:italic text-sm"
+                  placeholder="Minimum 6 characters"
                   value={form.newPassword}
                   onChange={handleChange}
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
-                  tabIndex={-1}
-                  aria-label="Toggle new password visibility"
+                  className="absolute right-4 text-[#C4A882] hover:text-[#C87941] transition-colors"
                 >
                   {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
-              {/* Strength bar */}
+              {/* Strength Indicators */}
               {form.newPassword.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  <div className="flex gap-1">
+                <div className="px-4 space-y-2 animate-fade-in mt-3">
+                  <div className="flex gap-2">
                     {[1, 2, 3].map((n) => (
-                      <div
-                        key={n}
-                        className="h-1.5 flex-1 rounded-full transition-all duration-300"
-                        style={{ background: n <= strength ? sc.color : '#e5e7eb' }}
-                      />
+                      <div key={n} className="h-1 flex-1 rounded-full overflow-hidden bg-[#EDD9C0]">
+                        <div 
+                           className="h-full transition-all duration-700 ease-out"
+                           style={{ 
+                             width: n <= strength ? '100%' : '0%',
+                             backgroundColor: sc.color,
+                             boxShadow: n <= strength ? `0 0 12px ${sc.color}44` : 'none'
+                           }}
+                        />
+                      </div>
                     ))}
                   </div>
-                  <p className="text-xs font-medium" style={{ color: sc.color }}>
-                    {sc.label}
-                    {strength < 3 && (
-                      <span className="text-stone-400 font-normal ml-1">
-                        — add {strength < 1 ? 'letters, numbers & symbols' : strength < 2 ? 'numbers & symbols' : 'a symbol'}
-                      </span>
-                    )}
-                  </p>
+                  <div className="flex items-center gap-2">
+                     <span className="text-[10px] uppercase tracking-widest font-black" style={{ color: sc.color }}>{sc.label}</span>
+                     {strength < 3 && <span className="text-[9px] text-[#9C7B65] italic tracking-wide"> — add complexity</span>}
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Confirm Password */}
-            <div>
-              <label htmlFor="rp-confirm" className="form-label">Confirm New Password</label>
-              <div className="relative">
+            <div className="space-y-2">
+              <label htmlFor="rp-confirm" className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C87941] ml-4">CONFIRM KEY</label>
+              <div className={`relative flex items-center bg-[#FBF5EE] border-[1.5px] rounded-full h-14 transition-all duration-300 ${focusedField === 'confirm' ? 'border-[#C87941] ring-4 ring-[#C87941]/5 bg-white' : 'border-[#DEC5A8]'}`}>
                 <input
                   id="rp-confirm"
                   name="confirm"
                   type={showConfirm ? 'text' : 'password'}
                   required
-                  className="input-field pr-11"
-                  placeholder="Re-enter your new password"
+                  onFocus={() => setFocusedField('confirm')}
+                  onBlur={() => setFocusedField(null)}
+                  className="w-full h-full bg-transparent border-none outline-none pl-6 pr-12 text-[#2C1810] placeholder:text-[#C4A882]/70 placeholder:italic text-sm"
+                  placeholder="Repeat your new key"
                   value={form.confirm}
                   onChange={handleChange}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
-                  tabIndex={-1}
-                  aria-label="Toggle confirm password visibility"
+                  className="absolute right-4 text-[#C4A882] hover:text-[#C87941] transition-colors"
                 >
                   {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {form.confirm && form.newPassword !== form.confirm && (
-                <p className="text-xs text-red-500 mt-1">Passwords do not match.</p>
-              )}
-              {form.confirm && form.newPassword === form.confirm && (
-                <p className="text-xs text-green-500 mt-1">✓ Passwords match</p>
+              
+              {form.confirm && (
+                 <div className="px-4 animate-fade-in mt-2">
+                   {form.newPassword === form.confirm ? (
+                     <div className="flex items-center gap-1.5 text-emerald-600 text-[10px] font-bold uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded inline-flex">
+                       <CheckCircle2 size={12} /> Alignment Perfect
+                     </div>
+                   ) : (
+                     <div className="flex items-center gap-1.5 text-red-500 text-[10px] font-bold uppercase tracking-widest bg-red-50 px-2 py-1 rounded inline-flex">
+                       <ShieldAlert size={12} /> Keys Divergent
+                     </div>
+                   )}
+                 </div>
               )}
             </div>
 
             <button
               type="submit"
-              id="reset-password-btn"
               disabled={loading}
-              className="btn-primary w-full py-3 rounded-xl"
-              style={{ background: '#C87941' }}
+              className="w-full h-14 rounded-full bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(200,121,65,0.25)] hover:shadow-[0_12px_32px_rgba(200,121,65,0.35)] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
             >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : <KeyRound size={16} />}
-              {loading ? 'Resetting…' : 'Reset Password'}
+              {loading ? (
+                <Loader2 size={24} className="animate-spin" />
+              ) : (
+                <>
+                  <KeyRound size={18} />
+                  <span className="uppercase tracking-[0.15em] text-sm font-bold">Forge New Access</span>
+                </>
+              )}
             </button>
           </form>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <Gem size={16} className="text-rose-400" />
-          <span className="font-serif text-sm text-stone-400">RKL Trove</span>
+        <div className="mt-12 text-center">
+           <div className="inline-flex items-center gap-2 text-[10px] text-[#B08060] uppercase tracking-[0.3em] font-bold">
+              <Sparkles size={10} className="text-[#C87941]" /> Protecting Your Gems with Care
+           </div>
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-slide-up {
+          animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+      `}} />
     </div>
   )
 }

@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Gem, Loader2, Mail } from 'lucide-react'
+import { Loader2, Mail, Sparkles, ArrowLeft, Key } from 'lucide-react'
 import { forgotPassword } from '../services/api'
 
 export default function ForgotPassword() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -15,71 +16,98 @@ export default function ForgotPassword() {
     setLoading(true)
     try {
       await forgotPassword(email.trim())
-      toast.success('OTP sent! Check your inbox.')
+      toast.success('Recovery key dispatched!', {
+        icon: '📨',
+        style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+      })
       navigate('/verify-otp', { state: { email: email.trim() } })
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to send OTP. Please try again.')
+      toast.error(err.response?.data?.message || 'Failed to dispatch recovery key.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-cream-100 to-cream-200 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl shadow-card p-8 sm:p-10 animate-slide-up">
-          {/* Logo */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-50 mb-4">
-              <Mail size={28} className="text-amber-600" />
-            </div>
-            <h1 className="font-serif text-3xl font-semibold text-stone-800">Forgot Password</h1>
-            <p className="text-sm text-stone-500 mt-1">
-              Enter your registered email to receive an OTP
-            </p>
+    <div className="min-h-screen bg-[#FBF5EE] relative overflow-hidden flex items-center justify-center px-4 font-sans">
+      {/* Background Dot Grid */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
+           style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+      
+      <div className="w-full max-w-md relative z-10 animate-fade-slide-up">
+        <div className="text-center mb-10">
+          <div className="inline-block relative group">
+             <div className="w-16 h-16 rounded-full border border-[#EDD9C0] bg-white flex items-center justify-center shadow-md transition-transform duration-500 group-hover:scale-110">
+                <Key className="text-[#C87941]" size={24} />
+             </div>
+             <div className="absolute -inset-4 bg-[#C87941]/5 rounded-full blur-xl" />
           </div>
+          <h1 className="mt-8 text-4xl font-serif font-bold text-[#2C1810]">Recover Access</h1>
+          <p className="text-[#9C7B65] mt-2 font-light italic">Summon your entry to the Trove</p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            <div>
-              <label htmlFor="fp-email" className="form-label">Email address</label>
-              <input
-                id="fp-email"
-                type="email"
-                autoComplete="email"
-                required
-                className="input-field"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+        <div className="bg-white rounded-[32px] p-8 sm:p-12 border border-[#EDD9C0] shadow-[0_12px_40px_rgba(44,26,14,0.06)]">
+          <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+            <div className="space-y-2">
+              <label htmlFor="fp-email" className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C87941] ml-4">CURATED EMAIL</label>
+              <div className={`
+                relative flex items-center bg-[#FBF5EE] border-[1.5px] rounded-full h-14 transition-all duration-300
+                ${isFocused ? 'border-[#C87941] ring-4 ring-[#C87941]/5 bg-white' : 'border-[#DEC5A8]'}
+              `}>
+                <Mail className={`absolute left-4 transition-colors ${isFocused ? 'text-[#C87941]' : 'text-[#B08060]'}`} size={18} />
+                <input
+                  id="fp-email"
+                  type="email"
+                  required
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  className="w-full h-full bg-transparent border-none outline-none pl-12 pr-4 text-[#2C1810] placeholder:text-[#C4A882]/70 placeholder:italic text-sm"
+                  placeholder="name@exclusive.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              id="send-otp-btn"
               disabled={loading}
-              className="btn-primary w-full py-3 rounded-xl"
-              style={{ background: loading ? '#d97706' : '#C87941' }}
+              className="w-full h-14 rounded-full bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(200,121,65,0.25)] hover:shadow-[0_12px_32px_rgba(200,121,65,0.35)] transition-all hover:scale-[1.02] active:scale-95"
             >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : <Mail size={16} />}
-              {loading ? 'Sending OTP…' : 'Send OTP'}
+              {loading ? (
+                <Loader2 size={24} className="animate-spin" />
+              ) : (
+                <>
+                  <Mail size={18} />
+                  <span className="uppercase tracking-widest text-sm font-bold">Request Access</span>
+                </>
+              )}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-stone-500">
-            Remember your password?{' '}
-            <Link to="/login" className="font-medium hover:underline" style={{ color: '#C87941' }}>
-              Back to Login
+          <p className="mt-10 text-center">
+            <Link to="/login" className="inline-flex items-center gap-2 text-[#C87941] hover:text-[#8B4513] font-bold text-sm transition-all group">
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Entry
             </Link>
           </p>
         </div>
 
-        {/* Branding */}
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <Gem size={16} className="text-rose-400" />
-          <span className="font-serif text-sm text-stone-400">RKL Trove</span>
+        <div className="mt-12 text-center">
+           <div className="inline-flex items-center gap-2 text-[10px] text-[#B08060] uppercase tracking-[0.3em] font-bold">
+              <Sparkles size={10} className="text-[#C87941]" /> Ensuring Eternal Integrity
+           </div>
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-slide-up {
+          animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+      `}} />
     </div>
   )
 }

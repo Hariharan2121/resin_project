@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken')
+const db = require('../config/db') // Use MySQL config
 
 /**
  * Express middleware that verifies the JWT sent in the
  * Authorization header (Bearer <token>).
- * Attaches the decoded user payload to req.user on success.
  */
-function authMiddleware(req, res, next) {
+async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Unauthorized: No token provided.' })
@@ -14,7 +14,14 @@ function authMiddleware(req, res, next) {
   const token = authHeader.split(' ')[1]
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.user = decoded // { id, name, email }
+    
+    // Check if user exists in MySQL
+    const [rows] = await db.query('SELECT id FROM users WHERE id = ?', [decoded.id]);
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Unauthorized: User no longer exists.' });
+    }
+
+    req.user = decoded 
     next()
   } catch (err) {
     return res.status(401).json({ message: 'Unauthorized: Invalid or expired token.' })

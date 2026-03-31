@@ -1,14 +1,4 @@
-CREATE DATABASE IF NOT EXISTS rkl_trove;
-USE rkl_trove;
-
-CREATE TABLE IF NOT EXISTS users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
+-- RKL Trove Product Schema
 CREATE TABLE IF NOT EXISTS products (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   name        VARCHAR(150)   NOT NULL,
@@ -18,13 +8,15 @@ CREATE TABLE IF NOT EXISTS products (
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Safety scripts (runs only if columns are missing or need modification)
 ALTER TABLE products
   MODIFY COLUMN price DECIMAL(10,2) NOT NULL DEFAULT 0.00;
 
 ALTER TABLE products
   MODIFY COLUMN description TEXT;
 
--- Cleans up for state but check if you want to keep data in production
+-- Initial Database Seeding
+-- We use TRUNCATE for a clean state during development (optional, but requested for fix)
 -- TRUNCATE TABLE products;
 
 INSERT INTO products (name, price, image_url, description) VALUES
@@ -40,14 +32,3 @@ INSERT INTO products (name, price, image_url, description) VALUES
    'Lightweight handmade resin earrings with dried flower inclusions'),
   ('Resin Photo Frame',    649.00,  '/images/product_16.jpg',
    'Custom resin photo frame with glitter and pearl finish');
-
--- User favourites with MySQL-compatible syntax
-CREATE TABLE IF NOT EXISTS favourites (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  product_id INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY unique_fav (user_id, product_id),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-);

@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
+import { 
+  Minus, Plus, Trash2, ShoppingBag, ArrowLeft, 
+  Loader2, CheckCircle, Sparkles, CreditCard,
+  ShieldCheck, Truck, Package 
+} from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -17,7 +21,7 @@ export default function Cart() {
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 
   const handleConfirmOrder = async () => {
-    if (items.length === 0) return toast.error('Your cart is empty!')
+    if (items.length === 0) return toast.error('Your selection is empty!')
     setLoading(true)
     try {
       await axios.post(
@@ -32,149 +36,250 @@ export default function Cart() {
       )
       setOrdered(true)
       clearCart()
-      toast.success('Order placed! A confirmation has been sent to the admin.')
+      toast.success('Your treasures are secured!', {
+        icon: '✨',
+        style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+      })
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to place order. Please try again.')
+      toast.error(err.response?.data?.message || 'Failed to secure treasures. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  // Success screen
+  // --- SUCCESS SCREEN ---
   if (ordered) {
     return (
-      <div className="min-h-screen bg-cream-50">
+      <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans overflow-hidden">
+        <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
+             style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
         <Navbar />
-        <div className="max-w-md mx-auto px-4 py-24 text-center animate-slide-up">
-          <CheckCircle size={64} className="mx-auto text-rose-400 mb-5" />
-          <h2 className="font-serif text-4xl text-stone-800 mb-3">Order Placed!</h2>
-          <p className="text-stone-500 mb-8">
-            Thank you, <strong>{user.name}</strong>! Your order has been received and the admin has been notified.
-            We'll reach out to you at <strong>{user.email}</strong> with further details.
+        <div className="max-w-xl mx-auto px-6 py-32 text-center animate-fade-slide-up relative z-10">
+          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-8 border border-[#C87941]/30 shadow-[0_12px_40px_rgba(200,121,65,0.15)] relative overflow-hidden">
+             <div className="absolute inset-0 bg-gradient-to-br from-[#C87941]/20 to-transparent" />
+             <CheckCircle size={48} className="text-[#C87941] relative z-10" />
+          </div>
+          <h2 className="text-5xl font-serif font-bold text-[#2C1810] mb-6">Treasures Secured</h2>
+          <p className="text-[#7A5542] text-lg leading-relaxed mb-10 italic max-w-sm mx-auto">
+            Thank you, <span className="text-[#C87941] font-bold">{user.name}</span>. Your unique curation is now part of the RKL Trove. We will contact <span className="text-[#2C1810] font-bold">{user.email}</span> shortly.
           </p>
-          <Link to="/" className="btn-primary">
-            <ArrowLeft size={16} /> Continue Shopping
-          </Link>
+          <div className="space-y-4">
+            <Link to="/" className="inline-flex items-center justify-center gap-3 bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white px-12 py-4 rounded-full text-sm font-bold shadow-[0_10px_20px_rgba(200,121,65,0.25)] hover:scale-[1.02] transition-all">
+              <ArrowLeft size={18} /> Continue Shopping
+            </Link>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans selection:bg-[#C87941]/20">
+      <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
+           style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex items-center gap-3 mb-8">
-          <Link to="/" className="btn-ghost">
-            <ArrowLeft size={16} /> Back to Shop
+      <main className="max-w-[1440px] mx-auto px-4 md:px-12 py-16 relative z-10">
+        {/* Navigation Breadcrumb */}
+        <div className="mb-12 animate-fade-in">
+          <Link to="/" className="group inline-flex items-center gap-2 text-[#9C7B65] hover:text-[#C87941] transition-all font-bold text-xs uppercase tracking-widest">
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-[#EDD9C0] group-hover:-translate-x-1 transition-transform shadow-sm">
+               <ArrowLeft size={14} />
+            </div>
+            Back to Collection
           </Link>
         </div>
-        <h1 className="font-serif text-4xl text-stone-800 mb-8">Your Cart</h1>
 
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-12 border-b border-[#EDD9C0] pb-8 animate-fade-slide-up">
+           <div>
+             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F5E6D3] text-[#C87941] text-[10px] font-bold rounded-full uppercase mb-4 tracking-widest shadow-sm">
+               <Sparkles size={10} /> Your Selection
+             </div>
+             <h1 className="text-5xl font-serif font-bold text-[#2C1810]">The <span className="italic text-[#C87941]">Curation</span></h1>
+           </div>
+           {items.length > 0 && (
+             <div className="text-right">
+               <span className="text-[#9C7B65] font-medium leading-relaxed italic">{items.length} unique masterpieces selected</span>
+             </div>
+           )}
+        </div>
+
+        {/* Main Content Grid */}
         {items.length === 0 ? (
-          /* Empty */
-          <div className="flex flex-col items-center justify-center py-28 text-center">
-            <ShoppingBag size={56} className="text-stone-200 mb-5" />
-            <h2 className="text-xl font-medium text-stone-500 mb-2">Your cart is empty</h2>
-            <p className="text-stone-400 text-sm mb-6">Browse our collection and add your favourite pieces.</p>
-            <Link to="/" className="btn-primary">Start Shopping</Link>
+          <div className="flex flex-col items-center justify-center py-32 text-center bg-white rounded-[40px] border-2 border-dashed border-[#EDD9C0] animate-fade-slide-up shadow-sm">
+            <div className="w-24 h-24 bg-[#FBF5EE] rounded-full flex items-center justify-center mb-8 border border-[#EDD9C0]">
+               <ShoppingBag size={40} className="text-[#C4A882]" />
+            </div>
+            <h2 className="text-3xl font-serif font-bold text-[#2C1810] mb-4">Your Curation is Empty</h2>
+            <p className="text-[#9C7B65] max-w-sm mb-12 leading-relaxed italic">Begin your journey through our collections and discover pieces that speak to your soul.</p>
+            <Link to="/" className="bg-[#C87941] text-white px-12 py-4 rounded-full text-sm font-bold shadow-lg hover:scale-105 transition-all">Explore Creations</Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 
-            {/* Items list */}
-            <div className="lg:col-span-2 space-y-4">
+            {/* PRODUCT LIST PANEL */}
+            <div className="lg:col-span-8 space-y-6 animate-fade-in [animation-delay:200ms]">
               {items.map(item => (
-                <div key={item.id} className="bg-white rounded-2xl shadow-soft p-4 flex gap-4 items-center">
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="w-20 h-20 object-cover rounded-xl flex-shrink-0 bg-cream-100"
-                    onError={e => { e.target.style.display = 'none' }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-base text-stone-800 leading-snug mb-1 line-clamp-2">
+                <article key={item.id} className="relative group bg-white rounded-[24px] p-5 md:p-6 flex flex-col sm:flex-row gap-6 items-center shadow-[0_4px_24px_rgba(44,26,14,0.04)] border border-[#F0E0CF] transition-all duration-500 hover:shadow-[0_12px_40px_rgba(200,121,65,0.12)] hover:border-[#DEC5A8]">
+                  {/* Item Image */}
+                  <div className="relative w-32 h-32 md:w-36 md:h-36 flex-shrink-0">
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="w-full h-full object-cover rounded-[18px] bg-[#FBF5EE] transition-transform duration-700 group-hover:scale-[1.04]"
+                      onError={e => { e.target.style.display = 'none' }}
+                    />
+                    <div className="absolute inset-0 pointer-events-none rounded-[18px] ring-1 ring-inset ring-[#C87941]/10" />
+                  </div>
+
+                  {/* Item Details */}
+                  <div className="flex-1 min-w-0 text-center sm:text-left">
+                    <h3 className="text-xl md:text-2xl font-serif font-bold text-[#2C1810] mb-2 leading-tight group-hover:text-[#C87941] transition-colors">
                       {item.name}
                     </h3>
-                    <p className="text-rose-500 font-semibold text-sm">{fmt(item.price)}</p>
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
+                      <span className="text-[#C87941] font-bold text-lg">{fmt(item.price)}</span>
+                      <div className="hidden sm:block h-4 w-[1px] bg-[#EDD9C0]" />
+                      <span className="text-[10px] text-[#9C7B65] uppercase tracking-widest font-bold bg-[#FBF5EE] px-2 py-1 rounded">Original Art</span>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2">
-                    {/* Qty controls */}
-                    <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-full px-1 py-0.5">
+                  {/* Controls Area */}
+                  <div className="flex flex-col items-center sm:items-end gap-6 flex-shrink-0">
+                    <div className="flex items-center gap-3 bg-[#FBF5EE] border border-[#EDD9C0] rounded-2xl p-1 shadow-inner">
                       <button
                         onClick={() => updateQty(item.id, item.quantity - 1)}
-                        id={`qty-minus-${item.id}`}
-                        className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-stone-200 transition-colors"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white hover:text-[#C87941] text-[#9C7B65] transition-all shadow-sm active:scale-90"
                       >
-                        <Minus size={12} />
+                        <Minus size={16} />
                       </button>
-                      <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
+                      <span className="w-8 text-center text-lg font-bold text-[#2C1810] font-serif">{item.quantity}</span>
                       <button
                         onClick={() => updateQty(item.id, item.quantity + 1)}
-                        id={`qty-plus-${item.id}`}
-                        className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-stone-200 transition-colors"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white hover:text-[#C87941] text-[#9C7B65] transition-all shadow-sm active:scale-90"
                       >
-                        <Plus size={12} />
+                        <Plus size={16} />
                       </button>
                     </div>
-                    {/* Subtotal */}
-                    <span className="text-xs text-stone-500">{fmt(item.price * item.quantity)}</span>
-                    {/* Remove */}
+
                     <button
-                      onClick={() => { removeItem(item.id); toast.success('Item removed.') }}
-                      id={`remove-${item.id}`}
-                      className="text-stone-300 hover:text-red-400 transition-colors"
-                      aria-label="Remove item"
+                      onClick={() => { removeItem(item.id); toast.success('Treasure released from selection.') }}
+                      className="inline-flex items-center gap-2 text-[#B08060] hover:text-[#E74C3C] text-[10px] font-bold uppercase tracking-widest transition-colors px-2 py-1"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} /> Release Treasure
                     </button>
                   </div>
-                </div>
+                </article>
               ))}
+
+              {/* Security Badge */}
+              <div className="flex items-center justify-center gap-6 py-6 opacity-60">
+                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#7A5542]">
+                    <ShieldCheck size={16} className="text-[#C87941]" /> Secured Checkout
+                 </div>
+                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#7A5542]">
+                    <Truck size={16} className="text-[#C87941]" /> Safe Packaging
+                 </div>
+                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#7A5542]">
+                    <Package size={16} className="text-[#C87941]" /> Curated Tracking
+                 </div>
+              </div>
             </div>
 
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-soft p-6 sticky top-24">
-                <h2 className="font-serif text-xl text-stone-800 mb-5">Order Summary</h2>
+            {/* ORDER SUMMARY PANEL */}
+            <div className="lg:col-span-4 lg:sticky lg:top-32 animate-fade-in [animation-delay:400ms]">
+              <div className="bg-white rounded-[32px] p-8 md:p-10 border border-[#EDD9C0] shadow-[0_12px_40px_rgba(44,26,14,0.06)] relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 text-[#C87941]/5 pointer-events-none">
+                   <Sparkles size={80} />
+                </div>
+                
+                <h2 className="text-2xl font-serif font-bold text-[#2C1810] mb-8 border-b border-[#FBF5EE] pb-6 flex items-center gap-3">
+                  Curation Summary
+                </h2>
 
-                <div className="space-y-2 text-sm mb-5">
+                <div className="space-y-5 mb-10 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                   {items.map(item => (
-                    <div key={item.id} className="flex justify-between text-stone-600">
-                      <span className="line-clamp-1 max-w-[160px]">{item.name} × {item.quantity}</span>
-                      <span>{fmt(item.price * item.quantity)}</span>
+                    <div key={item.id} className="flex justify-between items-start text-sm group">
+                      <div className="flex flex-col pr-4">
+                        <span className="text-[#5C3D2A] font-medium leading-snug">{item.name}</span>
+                        <span className="text-[10px] text-[#A0622E] font-bold uppercase tracking-tighter mt-1">Acquiring: {item.quantity}</span>
+                      </div>
+                      <span className="text-[#2C1810] font-bold font-serif whitespace-nowrap">{fmt(item.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="border-t border-stone-100 pt-4 mb-6">
-                  <div className="flex justify-between font-semibold text-stone-800">
-                    <span>Total</span>
-                    <span className="text-rose-600 text-lg">{fmt(totalPrice)}</span>
+                <div className="space-y-4 pt-8 border-t border-[#FBF5EE]">
+                  <div className="flex justify-between text-[#9C7B65] text-sm">
+                    <span className="font-medium">Acquisition Subtotal</span>
+                    <span className="font-serif">{fmt(totalPrice)}</span>
                   </div>
-                  <p className="text-xs text-stone-400 mt-1">Inclusive of all taxes</p>
+                  <div className="flex justify-between text-[#9C7B65] text-sm">
+                    <span className="font-medium">Artisanal Shipping</span>
+                    <span className="text-[#C87941] uppercase text-[10px] font-black tracking-widest bg-[#F5EDE3] px-2 py-0.5 rounded-full">Complimentary</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-end pt-8 bg-gradient-to-t from-[#FBF5EE]/50 to-transparent p-4 -mx-4 rounded-b-2xl">
+                    <span className="text-[#2C1810] font-bold text-lg uppercase tracking-wider">Total Investment</span>
+                    <div className="text-right">
+                       <span className="text-3xl font-serif font-bold text-[#C87941]">{fmt(totalPrice)}</span>
+                       <p className="text-[9px] text-[#9C7B65] uppercase tracking-widest font-black mt-1">Luxe Inclusive</p>
+                    </div>
+                  </div>
                 </div>
 
                 <button
                   onClick={handleConfirmOrder}
-                  id="confirm-order-btn"
                   disabled={loading}
-                  className="btn-primary w-full py-3 rounded-xl text-base"
+                  className={`
+                    w-full mt-10 p-5 rounded-[18px] text-lg font-bold shadow-lg transition-all flex items-center justify-center gap-3
+                    ${loading 
+                      ? 'bg-[#E5D5C5] text-white cursor-not-allowed' 
+                      : 'bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white hover:shadow-[0_12px_24px_rgba(200,121,65,0.3)] hover:-translate-y-0.5 active:translate-y-0'}
+                  `}
                 >
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : null}
-                  {loading ? 'Placing Order…' : 'Confirm Order'}
+                  {loading ? (
+                    <>
+                      <Loader2 size={24} className="animate-spin" />
+                      <span>Securing Treasures...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard size={20} />
+                      <span>Confirm Curation</span>
+                    </>
+                  )}
                 </button>
 
-                <p className="text-center text-xs text-stone-400 mt-3">
-                  We will contact you to confirm delivery details.
+                <p className="text-center text-[10px] text-[#B08060] mt-8 leading-relaxed max-w-[200px] mx-auto uppercase tracking-widest font-bold">
+                  Collector identity required for curation finalization.
                 </p>
               </div>
             </div>
           </div>
         )}
       </main>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeSlideUpHome {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-slide-up {
+          animation: fadeSlideUpHome 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #EDD9C0; border-radius: 10px; }
+      `}} />
     </div>
   )
 }

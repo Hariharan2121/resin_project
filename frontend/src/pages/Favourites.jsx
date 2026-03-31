@@ -1,174 +1,154 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Heart, Loader2, ShoppingCart, Gem } from 'lucide-react'
+import { Heart, Loader2, Gem, Sparkles, ArrowLeft, ShoppingBag } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import ProductCard from '../components/ProductCard'
 import { useAuth } from '../context/AuthContext'
-import { useCart } from '../context/CartContext'
 import { getFavourites, removeFavourite } from '../services/api'
 
 export default function Favourites() {
   const { user } = useAuth()
-  const { addItem, items } = useCart()
   const navigate = useNavigate()
 
   const [favourites, setFavourites] = useState([])
   const [loading, setLoading] = useState(true)
-  const [removingId, setRemovingId] = useState(null)
 
   useEffect(() => {
-    if (!user) { navigate('/login', { replace: true }); return }
+    if (!user) {
+      navigate('/login', { replace: true })
+      return
+    }
+
     const fetchFavs = async () => {
       try {
         const res = await getFavourites()
         setFavourites(res.data.data || [])
-      } catch {
-        toast.error('Failed to load favourites.')
+      } catch (err) {
+        toast.error('Failed to load your vault')
       } finally {
         setLoading(false)
       }
     }
+
     fetchFavs()
   }, [user, navigate])
 
-  const handleRemove = async (productId) => {
-    setRemovingId(productId)
-    // Optimistic UI
-    setFavourites((prev) => prev.filter((p) => p.id !== productId))
+  const toggleFavourite = async (productId) => {
+    // Optimistic UI update
+    setFavourites(prev => prev.filter(p => p.id !== productId))
     try {
       await removeFavourite(productId)
-      toast.success('Removed from favourites.')
-    } catch {
-      toast.error('Failed to remove. Please try again.')
-      // Re-fetch on failure
+      toast.success('Removed from your vault', {
+        style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+      })
+    } catch (err) {
+      toast.error('Failed to update vault')
+      // Refresh if failed
       const res = await getFavourites()
       setFavourites(res.data.data || [])
-    } finally {
-      setRemovingId(null)
     }
   }
 
-  const handleAddToCart = (product) => {
-    addItem(product)
-    toast.success(`"${product.name}" added to cart!`)
-  }
-
-  const formatPrice = (price) =>
-    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price)
-
   return (
-    <div className="min-h-screen bg-cream-50">
-      <Navbar />
+    <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans selection:bg-[#C87941]/20">
+      {/* Background Dot Grid */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
+           style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+      
+      <Navbar favouriteCount={favourites.length} />
 
-      {/* Header */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-rose-50 via-cream-100 to-cream-200 py-12 px-4">
-        <div className="max-w-3xl mx-auto text-center animate-slide-up">
-          <div className="inline-flex items-center gap-2 bg-rose-100 text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wider uppercase">
-            <Heart size={13} className="fill-rose-500" />
-            My Favourites
+      {/* Hero Section */}
+      <section className="relative pt-24 pb-12 px-6 text-center">
+        <div className="max-w-4xl mx-auto animate-fade-slide-up">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F5E6D3] text-[#C87941] text-xs font-bold tracking-widest uppercase mb-6 shadow-sm border border-[#EDD9C0]/50">
+            <Heart size={12} className="fill-current" /> Curated Treasures
           </div>
-          <h1 className="font-serif text-4xl sm:text-5xl font-semibold text-stone-800 mb-2">
-            Saved with Love
+          <h1 className="text-5xl md:text-6xl font-serif font-bold text-[#2C1810] leading-tight mb-4 text-center">
+            The Personal <span className="text-[#C87941] italic text-center">Vault</span>
           </h1>
-          <p className="text-stone-500 text-base">Products you've loved ♥</p>
+          <p className="text-lg text-[#7A5542] max-w-md mx-auto font-light leading-relaxed mb-10 text-center">
+            A sanctuary for the resin masterpieces that captured your heart.
+          </p>
         </div>
-        <div className="absolute -top-16 -left-16 w-64 h-64 bg-rose-200 opacity-20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-cream-400 opacity-20 rounded-full blur-3xl pointer-events-none" />
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Loading */}
-        {loading && (
-          <div className="flex items-center justify-center py-24">
-            <Loader2 size={36} className="text-rose-400 animate-spin" />
+      <main className="max-w-[1440px] mx-auto px-4 md:px-12 py-12 relative z-10">
+        <div className="flex items-center justify-between mb-10 border-b border-[#EDD9C0] pb-6">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-serif font-bold text-[#2C1810]">Your Selection</h2>
+            <span className="px-3 py-1 bg-[#F5E6D3] text-[#C87941] text-[10px] font-bold rounded-full uppercase tracking-wider">
+              {favourites.length} Items
+            </span>
           </div>
-        )}
+          <Link to="/" className="text-sm text-[#C87941] hover:text-[#8B4513] transition-colors flex items-center gap-2 font-bold uppercase tracking-widest">
+            <ArrowLeft size={16} /> Continue Exploring
+          </Link>
+        </div>
 
-        {/* Empty state */}
-        {!loading && favourites.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 animate-fade-in">
-            <div className="w-20 h-20 rounded-full bg-rose-50 flex items-center justify-center mb-5">
-              <Heart size={36} className="text-rose-300" />
+        {/* States Content */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32 space-y-4">
+            <Loader2 size={48} className="text-[#C87941] animate-spin" />
+            <p className="text-[#C87941] text-sm font-bold uppercase tracking-[0.2em]">Opening the Vault...</p>
+          </div>
+        ) : favourites.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-32 text-center bg-white rounded-[40px] border-2 border-dashed border-[#EDD9C0] animate-fade-slide-up shadow-[0_10px_40px_rgba(44,26,14,0.04)]">
+            <div className="w-24 h-24 bg-[#FBF5EE] rounded-full flex items-center justify-center mb-8 border border-[#EDD9C0]">
+              <Heart size={40} className="text-[#C4A882]" />
             </div>
-            <h2 className="font-serif text-2xl text-stone-700 mb-1">No favourites yet</h2>
-            <p className="text-stone-400 text-sm mb-6">Start exploring and heart the products you love!</p>
+            <h3 className="font-serif text-3xl font-bold text-[#2C1810] mb-4">Your Vault is Empty</h3>
+            <p className="text-[#9C7B65] max-w-sm mb-12 leading-relaxed italic">Begin your journey through our collections and discover pieces that speak to your soul.</p>
             <Link
               to="/"
-              className="btn-primary px-8 py-3 rounded-xl"
+              className="bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white px-12 py-4 rounded-full text-sm font-bold shadow-[0_10px_20px_rgba(200,121,65,0.25)] hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(200,121,65,0.35)] transition-all flex items-center gap-3"
             >
-              <Gem size={16} />
-              Browse Products
+              <Gem size={18} /> Browse Our Creations
             </Link>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 animate-fade-in pb-20">
+            {favourites.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isFavourite={true}
+                onToggleFavourite={toggleFavourite}
+              />
+            ))}
+          </div>
         )}
+      </main>
 
-        {/* Grid */}
-        {!loading && favourites.length > 0 && (
-          <>
-            <p className="text-stone-400 text-sm mb-6">
-              {favourites.length} saved {favourites.length === 1 ? 'product' : 'products'}
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
-              {favourites.map((product) => {
-                const inCart = items.find((i) => i.id === product.id)
-                return (
-                  <article
-                    key={product.id}
-                    id={`fav-card-${product.id}`}
-                    className="card group flex flex-col"
-                  >
-                    {/* Image */}
-                    <div className="relative overflow-hidden bg-cream-100 aspect-square">
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        onError={(e) => { e.target.style.display = 'none' }}
-                      />
-                      {/* Remove heart button */}
-                      <button
-                        id={`fav-remove-${product.id}`}
-                        onClick={() => handleRemove(product.id)}
-                        disabled={removingId === product.id}
-                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md transition-transform duration-150 hover:scale-110 active:scale-95"
-                        aria-label="Remove from favourites"
-                      >
-                        <Heart size={16} className="fill-rose-500 text-rose-500" />
-                      </button>
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex flex-col flex-1 p-4">
-                      <h3 className="font-serif text-lg text-stone-800 leading-snug mb-1 line-clamp-2">
-                        {product.name}
-                      </h3>
-                      {product.description && (
-                        <p className="text-xs text-stone-500 mb-3 line-clamp-2 flex-1">{product.description}</p>
-                      )}
-                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-stone-100">
-                        <span className="text-lg font-semibold text-rose-600">{formatPrice(product.price)}</span>
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          id={`fav-cart-${product.id}`}
-                          className="btn-primary text-xs px-4 py-2"
-                        >
-                          <ShoppingCart size={14} />
-                          {inCart ? 'Add More' : 'Add to Cart'}
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                )
-              })}
+      {/* Footer Branding */}
+      <footer className="py-20 px-6 bg-white border-t border-[#EDD9C0]">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
+            <div className="flex items-center gap-3 mb-6">
+              <img src="/images/icon.png" alt="Logo" className="w-10 h-10" />
+              <h2 className="font-serif text-2xl font-bold text-[#2C1810]">RKL Trove</h2>
             </div>
-          </>
-        )}
-      </section>
-
-      <footer className="mt-16 border-t border-stone-100 bg-white py-8 text-center text-sm text-stone-400">
-        <p>© {new Date().getFullYear()} RKL Trove. All rights reserved. Crafted with ♥</p>
+            <p className="text-[#9C7B65] text-xs tracking-[0.3em] uppercase max-w-sm border-t border-[#F5E6D3] pt-8">
+              © {new Date().getFullYear()} Artistry Handcrafted for Eternity
+            </p>
+        </div>
       </footer>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeSlideUpHome {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-slide-up {
+          animation: fadeSlideUpHome 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+      `}} />
     </div>
   )
 }
