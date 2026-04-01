@@ -38,8 +38,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/favourites', favouritesRoutes);
 
-// Profile Routing
-app.use('/api', profileRoutes);
+// Profile Routing - Using explicit mount to avoid conflict
+app.use('/api/user', profileRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));

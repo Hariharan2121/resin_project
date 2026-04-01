@@ -68,8 +68,8 @@ export const getProductById = async (id) => {
 /**
  * Profile Services
  */
-export const getProfile = () => api.get('/api/profile');
-export const updateProfile = (data) => api.put('/api/profile', data);
+export const getProfile = () => api.get('/api/user/profile');
+export const updateProfile = (data) => api.put('/api/user/profile', data);
 
 /**
  * Favourites Services
