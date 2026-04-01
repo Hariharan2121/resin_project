@@ -17,8 +17,12 @@ exports.getProfile = async (req, res) => {
 
     res.status(200).json(rows[0]);
   } catch (err) {
-    console.error('Error fetching profile:', err.message);
-    res.status(500).json({ message: 'Failed to retrieve profile.' });
+    console.error('[Profile Fetch Error Detailed]', {
+      message: err.message,
+      code: err.code,
+      stack: err.stack
+    })
+    res.status(500).json({ message: 'Failed to retrieve profile.', debug: err.message });
   }
 };
 
@@ -50,7 +54,11 @@ exports.updateProfile = async (req, res) => {
       data: rows[0]
     });
   } catch (err) {
-    console.error('Error updating profile:', err.message);
-    res.status(500).json({ message: 'Failed to update profile.' });
+    console.error('[Profile Update Error Detailed]', {
+      message: err.message,
+      code: err.code,
+      stack: err.stack
+    })
+    res.status(500).json({ message: 'Failed to update profile.', debug: err.message });
   }
 };
