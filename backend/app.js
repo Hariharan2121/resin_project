@@ -32,18 +32,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- Route Registrations ---
-app.use('/api', authRoutes); // Auth uses /api/signup, /api/login, etc.
-app.use('/api/products', productRoutes);
-app.use('/api/order', orderRoutes);
-app.use('/api/favourites', favouritesRoutes);
-
-// Profile Routing - Registered directly for maximum robustness
+// Profile Routing - Registered directly BEFORE auth to avoid any interception
 const profileController = require('./controllers/profileController');
 const authMiddleware = require('./middleware/authMiddleware');
 app.get('/api/user/profile', authMiddleware, profileController.getProfile);
 app.put('/api/user/profile', authMiddleware, profileController.updateProfile);
 app.get('/api/user/health', (req, res) => res.json({ status: 'profile-direct-ok' }));
+
+// --- Route Registrations ---
+app.use('/api', authRoutes); // Auth uses /api/signup, /api/login, etc.
+app.use('/api/products', productRoutes);
+app.use('/api/order', orderRoutes);
+app.use('/api/favourites', favouritesRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
