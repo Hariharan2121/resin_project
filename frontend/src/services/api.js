@@ -68,7 +68,7 @@ export const getProductById = async (id) => {
 /**
  * Profile Services
  */
-export const getProfile = () => api.get('/api/profile');
+export const getProfile = () => api.get('/api/profile/');
 export const updateProfile = (data) => api.put('/api/profile', data);
 
 /**

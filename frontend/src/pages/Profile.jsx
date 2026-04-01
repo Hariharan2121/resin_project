@@ -36,15 +36,17 @@ export default function Profile() {
     const fetchProfile = async () => {
       try {
         const res = await getProfile()
-        setProfile(res.data)
+        const profileData = res.data.data || res.data // Handle both raw and {data: {}} formats
+        setProfile(profileData)
         setFormData({
-          name: res.data.name || '',
-          phone: res.data.phone || '',
-          address: res.data.address || '',
-          pincode: res.data.pincode || ''
+          name: profileData.name || '',
+          phone: profileData.phone || '',
+          address: profileData.address || '',
+          pincode: profileData.pincode || ''
         })
       } catch (err) {
-        toast.error('Failed to load profile')
+        console.error('Profile fetch error:', err)
+        toast.error('Failed to load profile details')
       } finally {
         setLoading(false)
       }
@@ -69,9 +71,13 @@ export default function Profile() {
     const { name, value } = e.target
     setFormData(prev => {
       const next = { ...prev, [name]: value }
+      
+      // Safety check: if profile hasn't loaded yet, don't try to compare
+      if (!profile) return next
+
       // Check for changes against original profile
       const changed = 
-        next.name !== profile.name ||
+        next.name !== (profile.name || '') ||
         next.phone !== (profile.phone || '') ||
         next.address !== (profile.address || '') ||
         next.pincode !== (profile.pincode || '')
@@ -87,12 +93,13 @@ export default function Profile() {
     setUpdating(true)
     try {
       const res = await updateProfile(formData)
-      setProfile(res.data.data)
+      const updatedData = res.data.data || res.data
+      setProfile(updatedData)
       setHasChanges(false)
       setSuccess(true)
       
       // Update local storage user if name changed
-      const updatedUser = { ...user, name: res.data.data.name }
+      const updatedUser = { ...user, name: updatedData.name }
       localStorage.setItem('rkl_user', JSON.stringify(updatedUser))
       setUser(updatedUser)
 

@@ -26,12 +26,21 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static images (from /public)
 app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
+// Request logging for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // --- Route Registrations ---
 app.use('/api', authRoutes); // Auth uses /api/signup, /api/login, etc.
 app.use('/api/products', productRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/favourites', favouritesRoutes);
+
+// Robust Profile Routing
 app.use('/api/profile', profileRoutes);
+app.use('/api/profile/', profileRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
