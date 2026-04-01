@@ -38,8 +38,12 @@ app.use('/api/products', productRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/favourites', favouritesRoutes);
 
-// Profile Routing - Using explicit mount to avoid conflict
-app.use('/api/user', profileRoutes);
+// Profile Routing - Registered directly for maximum robustness
+const profileController = require('./controllers/profileController');
+const authMiddleware = require('./middleware/authMiddleware');
+app.get('/api/user/profile', authMiddleware, profileController.getProfile);
+app.put('/api/user/profile', authMiddleware, profileController.updateProfile);
+app.get('/api/user/health', (req, res) => res.json({ status: 'profile-direct-ok' }));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
