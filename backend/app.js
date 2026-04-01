@@ -32,15 +32,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// Profile Routing - Registered directly BEFORE auth to avoid any interception
+// Profile Routing - Registered directly and redundantly
 const profileController = require('./controllers/profileController');
 const authMiddleware = require('./middleware/authMiddleware');
-app.get('/api/user/profile', authMiddleware, profileController.getProfile);
-app.put('/api/user/profile', authMiddleware, profileController.updateProfile);
-app.get('/api/user/health', (req, res) => res.json({ status: 'profile-direct-ok' }));
+
+// No-auth debug endpoint
+app.get('/api/debug-profile', (req, res) => res.json({ status: 'debug-ok', help: 'If you see this, routing works' }));
+
+// Actual profile routes
+app.get('/api/profile', authMiddleware, profileController.getProfile);
+app.get('/api/profile/', authMiddleware, profileController.getProfile);
+app.put('/api/profile', authMiddleware, profileController.updateProfile);
+app.put('/api/profile/', authMiddleware, profileController.updateProfile);
 
 // --- Route Registrations ---
-app.use('/api', authRoutes); // Auth uses /api/signup, /api/login, etc.
+app.use('/api', authRoutes); 
 app.use('/api/products', productRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/favourites', favouritesRoutes);
