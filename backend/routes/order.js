@@ -38,8 +38,16 @@ router.post('/', async (req, res) => {
 
     res.json({ message: 'Order placed successfully! We will contact you soon.' })
   } catch (err) {
-    console.error('[Order Error]', err)
-    res.status(500).json({ message: 'Order submitted but email notification failed.' })
+    console.error('[Order Error Detailed]', {
+      message: err.message,
+      code: err.code,
+      command: err.command,
+      stack: err.stack
+    })
+    res.status(500).json({ 
+      message: 'Order submitted but email notification failed.',
+      debug: err.message // Temporarily include error message for easier debugging
+    })
   }
 })
 
