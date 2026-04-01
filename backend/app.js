@@ -11,6 +11,9 @@ const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 
+// Top level debug route
+app.get('/api/top-health', (req, res) => res.json({ status: 'top-ok' }));
+
 // --- Step 7: CORS setup ---
 // Allowing any origin during development, or specific if required
 app.use(cors({
