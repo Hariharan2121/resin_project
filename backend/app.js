@@ -55,7 +55,7 @@ app.use('/api/order', orderRoutes);
 app.use('/api/favourites', favouritesRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok-v-final-debug', timestamp: new Date().toISOString() }));
 
 // Database check (legacy endpoint)
 app.get('/api/test-db', async (req, res) => {
