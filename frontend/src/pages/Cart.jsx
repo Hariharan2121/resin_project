@@ -27,10 +27,12 @@ export default function Cart() {
       await axios.post(
         `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/order`,
         {
-          customerName: user.name,
-          customerEmail: user.email,
-          items: items.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
-          totalAmount: totalPrice,
+          userDetails: {
+            name: user.name,
+            email: user.email
+          },
+          cart: items.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
+          total: totalPrice,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       )
