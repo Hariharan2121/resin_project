@@ -90,33 +90,21 @@ export default function Signup() {
 
   const styles = {
     container: {
-      display: 'flex',
-      minHeight: '100vh',
       backgroundColor: '#FBF5EE',
       fontFamily: "'DM Sans', sans-serif",
       color: '#2C1810',
-      overflow: 'hidden'
     },
     leftPanel: {
-      width: '40%',
       background: 'linear-gradient(160deg, #F5E6D3 0%, #EDD0A8 50%, #E8C49A 100%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
       padding: '40px',
       position: 'relative',
       overflow: 'hidden',
       zIndex: 1
     },
     rightPanel: {
-      width: '60%',
       backgroundColor: '#FBF5EE',
       backgroundImage: 'radial-gradient(circle, rgba(222, 197, 168, 0.25) 1px, transparent 1px)',
       backgroundSize: '24px 24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
       padding: '24px',
       position: 'relative',
       overflowY: 'auto'
@@ -251,6 +239,11 @@ export default function Signup() {
            animation: mounted ? 'fadeSlideLeft 0.5s ease-out forwards' : 'none',
            animationDelay: '150ms'
         }}>
+          <div className="mobile-brand">
+            <img src="/images/icon.png" alt="RKL Logo" style={{ height: '64px', marginBottom: '12px' }} />
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.05em' }}>RKL Trove</h2>
+            <div style={{ width: '40px', height: '2px', background: '#C87941', marginTop: '4px' }} />
+          </div>
           <div style={{ width: '36px', height: '3px', background: 'linear-gradient(90deg, #C87941, #E8A96E)', borderRadius: '2px', marginBottom: '12px', opacity: mounted ? 1 : 0, animation: 'fadeIn 0.4s ease-out forwards', animationDelay: '350ms' }} />
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', fontWeight: 700, color: '#2C1810', lineHeight: 1.2, opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.45s ease-out forwards', animationDelay: '400ms' }}>Create Account</h2>
           <p style={{ fontSize: '0.9rem', color: '#9C7B65', marginTop: '6px', marginBottom: '32px', opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.4s ease-out forwards', animationDelay: '480ms' }}>Join us and discover handcrafted resin art</p>

@@ -141,23 +141,15 @@ export default function Profile() {
 
   const styles = {
     page: {
-      minHeight: '100vh',
       backgroundColor: '#FBF5EE',
       backgroundImage: 'radial-gradient(circle, rgba(222, 197, 168, 0.15) 1px, transparent 1px)',
       backgroundSize: '24px 24px',
-      padding: '40px 20px',
-      display: 'flex',
-      justifyContent: 'center'
     },
     wrapper: {
       maxWidth: '1100px',
       width: '100%',
-      display: 'flex',
-      gap: '32px',
-      flexWrap: 'wrap'
     },
     leftCard: {
-      flex: '1 1 350px',
       background: 'linear-gradient(160deg, #F5E6D3 0%, #EDD0A8 100%)',
       borderRadius: '24px',
       padding: '48px 32px',
@@ -195,7 +187,6 @@ export default function Profile() {
       marginTop: '32px'
     },
     rightCard: {
-      flex: '1 1 600px',
       backgroundColor: '#FFFFFF',
       borderRadius: '24px',
       padding: '48px',
@@ -220,11 +211,11 @@ export default function Profile() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.wrapper}>
+    <div style={styles.page} className="profile-page-container">
+      <div style={styles.wrapper} className="profile-wrapper">
         
         {/* LEFT CARD — Identity */}
-        <div style={styles.leftCard} className="animate-fade-in">
+        <div style={styles.leftCard} className="profile-left-card animate-fade-in">
           {/* Decorative Orbs */}
           <div style={{ position: 'absolute', top: -40, right: -40, width: 140, height: 140, background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)', borderRadius: '50%' }} />
           
@@ -269,7 +260,7 @@ export default function Profile() {
         </div>
 
         {/* RIGHT CARD — Edit Form */}
-        <div style={styles.rightCard}>
+        <div style={styles.rightCard} className="profile-right-card">
           <div style={{ width: '40px', height: '3px', background: 'linear-gradient(90deg, #C87941, #EEC39A)', borderRadius: '2px', marginBottom: '16px' }} />
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700, color: '#2C1810', marginBottom: '8px' }}>My Profile</h2>
           <p style={{ color: '#9C7B65', fontSize: '0.95rem', marginBottom: '40px' }}>Manage your personal and delivery information</p>
