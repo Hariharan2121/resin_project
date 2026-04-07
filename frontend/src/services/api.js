@@ -35,11 +35,16 @@ export const getProducts = async () => {
 
 /**
  * Fetch product by ID
+ * Handles both { success: true, data: {...} } (local) and raw object (Render/legacy) responses.
  */
 export const getProductById = async (id) => {
   try {
     const response = await api.get(`/api/products/${id}`);
-    if (response.data.success) return response.data.data;
+    const raw = response.data;
+    // Format 1: { success: true, data: {...} }
+    if (raw && raw.success === true && raw.data) return raw.data;
+    // Format 2: raw product object (Render legacy backend)
+    if (raw && raw.id) return raw;
     return null;
   } catch (error) {
     console.error(`Fetch product ${id} error:`, error);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import ProductCard from '../components/ProductCard'
 import { 
@@ -10,6 +11,7 @@ import { useAuth } from '../context/AuthContext'
 import { getFavourites, addFavourite, removeFavourite, getProducts } from '../services/api'
 
 export default function Home() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -155,6 +157,24 @@ export default function Home() {
           <p className="text-lg md:text-xl text-[#7A5542] max-w-2xl mx-auto font-light leading-relaxed mb-10">
             Exclusive resin art pieces, meticulously created to bring a touch of cosmic beauty into your everyday life.
           </p>
+          
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
+            <button 
+              onClick={() => {
+                const el = document.getElementById('collection-header');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-8 py-3.5 rounded-full bg-[#C87941] text-white font-bold shadow-[0_8px_24px_rgba(200,121,65,0.3)] hover:scale-105 transition-all active:scale-95"
+            >
+              Shop Collection
+            </button>
+            <button 
+              onClick={() => navigate('/customize')}
+              className="px-8 py-3.5 rounded-full bg-white text-[#C87941] border-2 border-[#C87941] font-bold hover:bg-[#FEF0E3] transition-all active:scale-95 flex items-center gap-2"
+            >
+              <Palette size={18} /> Design Studio
+            </button>
+          </div>
         </div>
 
         {/* TASK 1 — CINEMATIC SEARCH BAR */}
@@ -284,7 +304,7 @@ export default function Home() {
         {/* Task 3 — MAIN GRID BLOCK */}
         <section className="flex-1 w-full">
           <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <div>
+            <div id="collection-header">
               <h2 className="text-3xl font-serif font-bold text-[#2C1810]">Our Collection</h2>
               {search && (
                 <p className="text-[0.82rem] text-[#7A5542] mt-1 animate-fade-in">

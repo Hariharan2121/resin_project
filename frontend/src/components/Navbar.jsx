@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Heart, ShoppingBag, Menu, X, LogOut, User, ShoppingCart } from 'lucide-react'
+import { Heart, ShoppingBag, Menu, X, LogOut, User, ShoppingCart, Palette } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 
@@ -32,6 +32,7 @@ export default function Navbar({ favouriteCount = 0 }) {
 
   const navLinks = [
     { name: 'Home', path: '/' },
+    { name: 'Design Studio', path: '/customize' },
     { name: 'Favourites', path: '/favourites' },
     { name: 'Cart', path: '/cart' },
   ]
@@ -229,6 +230,12 @@ export default function Navbar({ favouriteCount = 0 }) {
                   className="w-full flex items-center justify-center gap-2 px-4 py-4 text-[#D4AF88] bg-white/5 rounded-xl font-bold text-sm border border-white/10"
                 >
                   <User size={18} /> My Profile
+                </Link>
+                <Link
+                  to="/customize"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-4 text-[#C87941] bg-[rgba(200,121,65,0.08)] rounded-xl font-bold text-sm border border-[rgba(200,121,65,0.2)]"
+                >
+                  <Palette size={18} /> Design Studio
                 </Link>
                 <div className="w-full flex items-center justify-center gap-2 px-4 py-4 text-gray-500 bg-white/5 rounded-xl font-bold text-sm border border-white/5 opacity-60">
                   <ShoppingBag size={18} /> My Orders (Soon)
