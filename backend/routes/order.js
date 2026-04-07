@@ -1,9 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const nodemailer = require('nodemailer')
+const { customOrderHandler } = require('../controllers/customOrderController')
 
 /**
  * POST /api/order
+ * Standard cart order email notification.
  */
 router.post('/', async (req, res) => {
   const { cart, total, userDetails } = req.body
@@ -16,7 +18,7 @@ router.post('/', async (req, res) => {
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST || 'smtp.gmail.com',
       port: 465,
-      secure: true, // true for 465, false for other ports
+      secure: true,
       auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
     })
 
@@ -38,17 +40,18 @@ router.post('/', async (req, res) => {
 
     res.json({ message: 'Order placed successfully! We will contact you soon.' })
   } catch (err) {
-    console.error('[Order Error Detailed]', {
-      message: err.message,
-      code: err.code,
-      command: err.command,
-      stack: err.stack
-    })
-    res.status(500).json({ 
+    console.error('[Order Error]', err.message)
+    res.status(500).json({
       message: 'Order submitted but email notification failed.',
-      debug: err.message // Temporarily include error message for easier debugging
+      debug: err.message
     })
   }
 })
+
+/**
+ * POST /api/order/custom
+ * Custom design studio order — sends detailed email to admin.
+ */
+router.post('/custom', customOrderHandler)
 
 module.exports = router

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// --- Step 4: Axios configuration ---
+// --- Axios configuration ---
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const api = axios.create({
   baseURL: API_URL,
@@ -17,31 +17,15 @@ api.interceptors.request.use((config) => {
 });
 
 /**
- * --- Step 4: Fetch all products ---
- * We return response.data.data because backend wraps in { success: true, data: [...] }
+ * Fetch all products
  */
 export const getProducts = async () => {
   try {
     const response = await api.get('/api/products');
     const rawData = response.data;
-    
-    console.log('💎 Raw API Data Received:', rawData);
-    
-    // 1. Check for newized format { success: true, data: [...] }
-    if (rawData && rawData.success === true && Array.isArray(rawData.data)) {
-      return rawData.data;
-    }
-    
-    // 2. Check for legacy raw array [...]
-    if (Array.isArray(rawData)) {
-      return rawData;
-    }
-
-    // 3. Check for any nested data property (Defensive)
-    if (rawData && Array.isArray(rawData.products)) {
-      return rawData.products;
-    }
-    
+    if (rawData && rawData.success === true && Array.isArray(rawData.data)) return rawData.data;
+    if (Array.isArray(rawData)) return rawData;
+    if (rawData && Array.isArray(rawData.products)) return rawData.products;
     return [];
   } catch (error) {
     console.error('❌ Fetch products error:', error);
@@ -55,9 +39,7 @@ export const getProducts = async () => {
 export const getProductById = async (id) => {
   try {
     const response = await api.get(`/api/products/${id}`);
-    if (response.data.success) {
-      return response.data.data;
-    }
+    if (response.data.success) return response.data.data;
     return null;
   } catch (error) {
     console.error(`Fetch product ${id} error:`, error);
@@ -70,6 +52,7 @@ export const getProductById = async (id) => {
  */
 export const getProfile = () => api.get('/api/profile');
 export const updateProfile = (data) => api.put('/api/profile', data);
+export const deleteAccount = () => api.delete('/api/profile');
 
 /**
  * Favourites Services
@@ -79,7 +62,12 @@ export const addFavourite = (productId) => api.post('/api/favourites', { product
 export const removeFavourite = (productId) => api.delete(`/api/favourites/${productId}`);
 
 /**
- * Auth Services (Legacy Support)
+ * Custom Order
+ */
+export const submitCustomOrder = (orderData) => api.post('/api/order/custom', orderData);
+
+/**
+ * Auth Services
  */
 export const forgotPassword = (email) => api.post('/api/forgot-password', { email });
 export const verifyOtp = (email, otp) => api.post('/api/verify-otp', { email, otp });

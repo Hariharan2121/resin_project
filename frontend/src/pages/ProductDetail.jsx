@@ -1,0 +1,497 @@
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import {
+  ShoppingCart, Heart, Palette, Truck, Package, RefreshCw,
+  Copy, Home, ChevronRight, Plus, Minus, Share2, Star
+} from 'lucide-react'
+import toast from 'react-hot-toast'
+import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
+import { getProductById, getProducts, getFavourites, addFavourite, removeFavourite } from '../services/api'
+import Navbar from '../components/Navbar'
+import ProductCard from '../components/ProductCard'
+
+// ── Skeleton component ────────────────────────────────────────────────────────
+function Skeleton({ width = '100%', height = '20px', borderRadius = '8px', style = {} }) {
+  return (
+    <div style={{
+      width, height, borderRadius, flexShrink: 0,
+      animation: 'skeletonPulse 1.5s ease-in-out infinite',
+      ...style
+    }} />
+  )
+}
+
+export default function ProductDetail() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { addItem, items, updateQty } = useCart()
+  const { user } = useAuth()
+
+  const [product, setProduct] = useState(null)
+  const [allProducts, setAllProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+  const [quantity, setQuantity] = useState(1)
+  const [isFavourite, setIsFavourite] = useState(false)
+  const [favLoading, setFavLoading] = useState(false)
+  const [activeThumb, setActiveThumb] = useState(0)
+  const [imgError, setImgError] = useState(false)
+  const [imgHovered, setImgHovered] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    setNotFound(false)
+    setProduct(null)
+    setQuantity(1)
+    setActiveThumb(0)
+    setImgError(false)
+    setMounted(false)
+
+    Promise.all([
+      getProductById(id),
+      getProducts(),
+      user ? getFavourites().catch(() => ({ data: { data: [] } })) : Promise.resolve({ data: { data: [] } })
+    ]).then(([prod, prods, favRes]) => {
+      if (!prod) { setNotFound(true); setLoading(false); return }
+      setProduct(prod)
+      setAllProducts(prods || [])
+      const favData = favRes?.data?.data || favRes?.data || []
+      setIsFavourite(Array.isArray(favData) && favData.some(f => f.id === prod.id || String(f.id) === String(id)))
+      setLoading(false)
+      setTimeout(() => setMounted(true), 50)
+    })
+  }, [id])
+
+  const imgSrc = product
+    ? (product.image_url?.startsWith('http') ? product.image_url : `${API_URL}${product.image_url}`)
+    : ''
+
+  const handleAddToCart = () => {
+    if (!product) return
+    const existing = items.find(i => i.id === product.id)
+    if (existing) {
+      updateQty(product.id, existing.quantity + quantity)
+    } else {
+      for (let i = 0; i < quantity; i++) addItem(product)
+    }
+    toast.success(`${quantity > 1 ? quantity + '× ' : ''}"${product.name}" added to cart!`, {
+      icon: '🛒',
+      style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+    })
+  }
+
+  const handleFavourite = async () => {
+    if (!user) { toast.error('Please login to save favourites.'); navigate('/login'); return }
+    setFavLoading(true)
+    try {
+      if (isFavourite) {
+        await removeFavourite(product.id)
+        setIsFavourite(false)
+        toast('Removed from favourites', { icon: '💔' })
+      } else {
+        await addFavourite(product.id)
+        setIsFavourite(true)
+        toast.success('Added to favourites! ♥', {
+          style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+        })
+      }
+    } catch {
+      toast.error('Failed to update favourites.')
+    } finally {
+      setFavLoading(false)
+    }
+  }
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href)
+    toast.success('Link copied!', { icon: '🔗' })
+  }
+
+  const handleWhatsApp = () => {
+    const text = encodeURIComponent(`Check out this product from RKL Trove: ${product?.name} — ${window.location.href}`)
+    window.open(`https://wa.me/?text=${text}`, '_blank')
+  }
+
+  const related = allProducts.filter(p => String(p.id) !== String(id)).slice(0, 4)
+
+  const fadeIn = (delay = 0) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? 'translateY(0)' : 'translateY(20px)',
+    transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`
+  })
+
+  // ── Loading Skeleton ──────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "'DM Sans', sans-serif" }}>
+        <style>{`
+          @keyframes skeletonPulse {
+            0%, 100% { background-color: #F0E0CF; }
+            50% { background-color: #E8D0B8; }
+          }
+        `}</style>
+        <Navbar />
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '24px 16px' : '40px 48px' }}>
+          <Skeleton height="16px" width="220px" style={{ marginBottom: '32px' }} />
+          <div style={{ display: 'flex', gap: '48px', flexDirection: isMobile ? 'column' : 'row' }}>
+            <div style={{ flex: 1 }}>
+              <Skeleton height={isMobile ? '280px' : '440px'} borderRadius="20px" style={{ marginBottom: '12px' }} />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {[1,2,3].map(i => <Skeleton key={i} width="70px" height="70px" borderRadius="10px" />)}
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <Skeleton height="14px" width="100px" />
+              <Skeleton height="40px" width="85%" />
+              <Skeleton height="16px" width="160px" />
+              <Skeleton height="50px" width="50%" />
+              <Skeleton height="1px" />
+              <Skeleton height="80px" />
+              <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                <Skeleton height="52px" style={{ flex: 1 }} borderRadius="14px" />
+                <Skeleton height="52px" style={{ flex: 1 }} borderRadius="14px" />
+                <Skeleton width="52px" height="52px" borderRadius="14px" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Not Found ──────────────────────────────────────────────────────────────
+  if (notFound) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "'DM Sans', sans-serif" }}>
+        <Navbar />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🔍</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.8rem', color: '#2C1810', marginBottom: '12px' }}>Product Not Found</h2>
+          <p style={{ color: '#9C7B65', marginBottom: '24px' }}>This product may have been removed or doesn't exist.</p>
+          <button
+            onClick={() => navigate('/')}
+            style={{ background: 'linear-gradient(135deg, #C87941, #A0622E)', color: 'white', border: 'none', borderRadius: '12px', padding: '12px 28px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Back to Store
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "'DM Sans', sans-serif", color: '#2C1810' }}>
+      <style>{`
+        @keyframes skeletonPulse {
+          0%, 100% { background-color: #F0E0CF; }
+          50% { background-color: #E8D0B8; }
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
+      <Navbar />
+
+      {/* Breadcrumb */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '16px 16px 0' : '24px 48px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: '#9C7B65', flexWrap: 'wrap' }}>
+          <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', transition: 'color 0.2s' }}
+            onClick={() => navigate('/')}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#C87941'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#9C7B65'}
+          >
+            <Home size={13} /> Home
+          </span>
+          <span style={{ color: '#C4A882' }}>›</span>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }}
+            onClick={() => navigate('/')}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#C87941'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#9C7B65'}
+          >
+            Products
+          </span>
+          <span style={{ color: '#C4A882' }}>›</span>
+          <span style={{ color: '#2C1810', fontWeight: 500 }}>{product.name}</span>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '20px 16px 40px' : '32px 48px 60px' }}>
+        <div style={{
+          display: 'flex', gap: isMobile ? '24px' : '48px',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: 'flex-start'
+        }}>
+
+          {/* ── LEFT — Image ── */}
+          <div style={{
+            flex: '0 0 auto', width: isMobile ? '100%' : '48%',
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateX(0)' : 'translateX(-30px)',
+            transition: 'opacity 0.5s ease 0ms, transform 0.5s ease 0ms'
+          }}>
+            {/* Main Image */}
+            <div style={{ position: 'relative', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 8px 40px rgba(200,121,65,0.15)', border: '1px solid #EDD9C0', aspectRatio: '1/1', cursor: 'zoom-in' }}
+              onMouseEnter={() => setImgHovered(true)}
+              onMouseLeave={() => setImgHovered(false)}
+            >
+              {!imgError ? (
+                <img
+                  src={imgSrc}
+                  alt={product.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#FBF5EE', transform: imgHovered ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease', display: 'block' }}
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', background: '#F5E6D3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem' }}>
+                  🎨
+                </div>
+              )}
+              {/* Handcrafted badge */}
+              <div style={{
+                position: 'absolute', top: '16px', left: '16px',
+                background: 'rgba(200,121,65,0.90)', color: 'white',
+                fontSize: '0.72rem', fontWeight: 600, padding: '6px 14px',
+                borderRadius: '20px', backdropFilter: 'blur(4px)',
+                letterSpacing: '0.04em'
+              }}>
+                ✦ Handcrafted
+              </div>
+            </div>
+
+            {/* Thumbnails */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  onClick={() => setActiveThumb(i)}
+                  style={{
+                    width: '70px', height: '70px', borderRadius: '10px', overflow: 'hidden',
+                    border: activeThumb === i ? '2px solid #C87941' : '2px solid transparent',
+                    cursor: 'pointer',
+                    boxShadow: activeThumb === i ? '0 0 0 3px rgba(200,121,65,0.20)' : 'none',
+                    transition: 'all 0.2s', flexShrink: 0
+                  }}
+                >
+                  {!imgError ? (
+                    <img src={imgSrc} alt={`thumb ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgError(true)} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: '#F5E6D3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>🎨</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── RIGHT — Info ── */}
+          <div style={{
+            flex: 1, minWidth: 0,
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateX(0)' : 'translateX(30px)',
+            transition: 'opacity 0.5s ease 150ms, transform 0.5s ease 150ms'
+          }}>
+            {/* Category tag */}
+            <div style={{ ...fadeIn(200), display: 'inline-block' }}>
+              <span style={{ background: '#FEF0E3', color: '#C87941', border: '1px solid rgba(200,121,65,0.25)', fontSize: '0.75rem', fontWeight: 600, padding: '5px 14px', borderRadius: '20px' }}>
+                Resin Art
+              </span>
+            </div>
+
+            {/* Product name */}
+            <h1 style={{ ...fadeIn(280), fontFamily: "'Playfair Display', serif", fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 700, color: '#2C1810', lineHeight: 1.2, marginTop: '12px' }}>
+              {product.name}
+            </h1>
+
+            {/* Rating */}
+            <div style={{ ...fadeIn(360), display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+              <div style={{ display: 'flex', gap: '2px' }}>
+                {[1,2,3,4,5].map(i => <Star key={i} size={16} fill="#C87941" color="#C87941" />)}
+              </div>
+              <span style={{ fontWeight: 700, color: '#C87941', fontSize: '0.9rem' }}>4.9</span>
+              <span style={{ color: '#9C7B65', fontSize: '0.82rem' }}>(24 reviews)</span>
+            </div>
+
+            {/* Price */}
+            <div style={{ ...fadeIn(440), marginTop: '22px' }}>
+              <div style={{
+                fontFamily: "'Playfair Display', serif", fontSize: '2.2rem', fontWeight: 700,
+                background: 'linear-gradient(135deg, #C87941, #8B4513)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                display: 'inline-block'
+              }}>
+                ₹{Number(product.price).toFixed(2)}
+              </div>
+              <p style={{ fontSize: '0.78rem', color: '#9C7B65', fontStyle: 'italic', marginTop: '4px' }}>Inclusive of all taxes</p>
+            </div>
+
+            <div style={{ ...fadeIn(480), height: '1px', background: '#EDD9C0', margin: '20px 0' }} />
+
+            {/* Description */}
+            <div style={fadeIn(520)}>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: '#9C7B65', textTransform: 'uppercase', marginBottom: '10px' }}>About This Product</p>
+              <p style={{ fontSize: '0.95rem', color: '#3D2B1A', lineHeight: 1.7 }}>
+                {product.description || 'A beautifully handcrafted resin piece, made with premium materials and love. Each item is unique and one-of-a-kind.'}
+              </p>
+            </div>
+
+            {/* Highlights */}
+            <div style={{ ...fadeIn(580), display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '18px' }}>
+              {['✦ 100% Handmade', '✦ Premium Resin', '✦ Ships in 5-7 days'].map(h => (
+                <span key={h} style={{ background: '#FEF9F3', border: '1px solid #EDD9C0', borderRadius: '20px', padding: '8px 16px', fontSize: '0.82rem', color: '#5C3D2A' }}>
+                  {h}
+                </span>
+              ))}
+            </div>
+
+            <div style={{ ...fadeIn(620), height: '1px', background: '#EDD9C0', margin: '20px 0' }} />
+
+            {/* Quantity */}
+            <div style={fadeIn(660)}>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: '#9C7B65', textTransform: 'uppercase', marginBottom: '12px' }}>Quantity</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+                <button
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1.5px solid #DEC5A8', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', color: '#7A5542' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF0E3'; e.currentTarget.style.borderColor = '#C87941' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#DEC5A8' }}
+                >
+                  <Minus size={14} />
+                </button>
+                <span style={{ minWidth: '48px', textAlign: 'center', fontSize: '1rem', fontWeight: 600, color: '#2C1810' }}>{quantity}</span>
+                <button
+                  onClick={() => setQuantity(q => Math.min(10, q + 1))}
+                  style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1.5px solid #DEC5A8', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', color: '#7A5542' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF0E3'; e.currentTarget.style.borderColor = '#C87941' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#DEC5A8' }}
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ ...fadeIn(720), display: 'flex', gap: '12px', marginTop: '24px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+              {/* Add to Cart */}
+              <button
+                onClick={handleAddToCart}
+                style={{
+                  flex: 1, minWidth: isMobile ? '100%' : 'auto', height: '52px', borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #C87941, #A0622E)',
+                  color: 'white', border: 'none', fontSize: '1rem', fontWeight: 600,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                  boxShadow: '0 4px 20px rgba(200,121,65,0.35)',
+                  transition: 'all 0.25s ease'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(200,121,65,0.45)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(200,121,65,0.35)' }}
+              >
+                <ShoppingCart size={18} /> Add to Cart
+              </button>
+
+              {/* Customize */}
+              <button
+                onClick={() => navigate(`/customize?product=${product.id}&name=${encodeURIComponent(product.name)}`)}
+                style={{
+                  flex: 1, minWidth: isMobile ? 'calc(50% - 6px)' : 'auto', height: '52px', borderRadius: '14px',
+                  background: 'white', border: '2px solid #C87941', color: '#C87941',
+                  fontSize: '1rem', fontWeight: 600,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                  transition: 'all 0.25s ease'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF0E3'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.transform = 'translateY(0)' }}
+              >
+                <Palette size={18} /> Customize This
+              </button>
+
+              {/* Heart */}
+              <button
+                onClick={handleFavourite}
+                disabled={favLoading}
+                style={{
+                  width: '52px', height: '52px', flexShrink: 0, borderRadius: '14px',
+                  border: `1.5px solid ${isFavourite ? '#C87941' : '#DEC5A8'}`,
+                  background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                  color: isFavourite ? '#E74C3C' : '#B08060'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#C87941'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = isFavourite ? '#C87941' : '#DEC5A8'}
+              >
+                <Heart size={20} fill={isFavourite ? '#E74C3C' : 'none'} />
+              </button>
+            </div>
+
+            {/* Share */}
+            <div style={{ ...fadeIn(780), display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
+              <span style={{ fontSize: '0.8rem', color: '#9C7B65' }}>Share:</span>
+              <button onClick={handleCopyLink} style={{ background: 'white', border: '1px solid #DEC5A8', borderRadius: '8px', padding: '6px 12px', fontSize: '0.8rem', color: '#7A5542', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.2s' }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#C87941'; e.currentTarget.style.color = '#C87941' }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#DEC5A8'; e.currentTarget.style.color = '#7A5542' }}>
+                <Copy size={13} /> Copy Link
+              </button>
+              <button onClick={handleWhatsApp} style={{ background: '#25D366', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '0.8rem', color: 'white', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Share2 size={13} /> WhatsApp
+              </button>
+            </div>
+
+            {/* Delivery Info */}
+            <div style={{ ...fadeIn(840), background: '#FEF9F3', border: '1px solid #EDD9C0', borderRadius: '14px', padding: '16px 20px', marginTop: '20px' }}>
+              {[
+                { icon: Truck, text: 'Free shipping on orders above ₹999' },
+                { icon: Package, text: 'Ships within 3-5 business days' },
+                { icon: RefreshCw, text: 'Easy 7-day returns' }
+              ].map((item, i, arr) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid #F0E0CF' : 'none' }}>
+                  <item.icon size={16} style={{ color: '#C87941', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.82rem', color: '#5C3D2A' }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Related Products */}
+        {related.length > 0 && (
+          <div style={{ marginTop: '64px', opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 400ms' }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.3rem', color: '#2C1810', marginBottom: '24px' }}>
+              You May Also Like
+            </h2>
+            <div style={{
+              display: isMobile ? 'flex' : 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '20px',
+              overflowX: isMobile ? 'auto' : 'visible',
+              flexDirection: isMobile ? 'row' : undefined,
+              paddingBottom: isMobile ? '12px' : 0
+            }}>
+              {related.map(p => (
+                <div key={p.id} style={{ minWidth: isMobile ? '200px' : undefined }}>
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

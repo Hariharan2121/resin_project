@@ -47,6 +47,7 @@ app.get('/api/profile', authMiddleware, profileController.getProfile);
 app.get('/api/profile/', authMiddleware, profileController.getProfile);
 app.put('/api/profile', authMiddleware, profileController.updateProfile);
 app.put('/api/profile/', authMiddleware, profileController.updateProfile);
+app.delete('/api/profile', authMiddleware, profileController.deleteAccount);
 
 // --- Route Registrations ---
 app.use('/api', authRoutes); 

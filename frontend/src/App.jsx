@@ -13,6 +13,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import VerifyOtp from './pages/VerifyOtp'
 import ResetPassword from './pages/ResetPassword'
 import Profile from './pages/Profile'
+import ProductDetail from './pages/ProductDetail'
+import CustomizeStudio from './pages/CustomizeStudio'
 
 export default function App() {
   return (
@@ -29,9 +31,9 @@ export default function App() {
                 borderRadius: '12px',
                 boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
                 fontSize: '14px',
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'DM Sans, sans-serif',
               },
-              success: { iconTheme: { primary: '#e11d48', secondary: '#fff' } },
+              success: { iconTheme: { primary: '#C87941', secondary: '#fff' } },
             }}
           />
           <Routes>
@@ -44,9 +46,12 @@ export default function App() {
 
             {/* Protected routes */}
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
             <Route path="/favourites" element={<ProtectedRoute><Favourites /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+            <Route path="/customize" element={<ProtectedRoute><CustomizeStudio /></ProtectedRoute>} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
