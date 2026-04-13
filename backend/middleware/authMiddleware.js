@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const db = require('../config/db') // Use MySQL config
+const User = require('../models/User')
 
 /**
  * Express middleware that verifies the JWT sent in the
@@ -14,14 +14,14 @@ async function authMiddleware(req, res, next) {
   const token = authHeader.split(' ')[1]
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    
-    // Check if user exists in MySQL
-    const [rows] = await db.query('SELECT id FROM users WHERE id = ?', [decoded.id]);
-    if (rows.length === 0) {
-      return res.status(401).json({ message: 'Unauthorized: User no longer exists.' });
+
+    // Check if user still exists in MongoDB
+    const user = await User.findById(decoded.id).select('_id')
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized: User no longer exists.' })
     }
 
-    req.user = decoded 
+    req.user = decoded
     next()
   } catch (err) {
     return res.status(401).json({ message: 'Unauthorized: Invalid or expired token.' })

@@ -1,16 +1,6 @@
-const db = require('../config/db');
-
-// ─── Auto-migrate city column on startup ───────────────────────────────────────
-(async () => {
-  try {
-    await db.query('ALTER TABLE users ADD COLUMN city VARCHAR(100) DEFAULT NULL');
-    console.log('✅ Migrated: city column added to users table');
-  } catch (err) {
-    if (err.code !== 'ER_DUP_FIELDNAME') {
-      console.error('Migration warning:', err.message);
-    }
-  }
-})();
+const User = require('../models/User');
+const Favourite = require('../models/Favourite');
+const PasswordReset = require('../models/PasswordReset');
 
 /**
  * GET /api/profile
@@ -18,17 +8,31 @@ const db = require('../config/db');
 exports.getProfile = async (req, res) => {
   const userId = req.user.id;
   try {
-    const [rows] = await db.query(
-      'SELECT id, name, email, phone, address, city, pincode, created_at FROM users WHERE id = ?',
-      [userId]
-    );
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'User not found.' });
+    const user = await User.findById(userId)
+      .select('name email phone address pincode createdAt');
+      
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
-    res.status(200).json(rows[0]);
+
+    res.json({
+      success: true,
+      data: {
+        id:        user._id,
+        name:      user.name      || '',
+        email:     user.email     || '',
+        phone:     user.phone     || '',
+        address:   user.address   || '',
+        pincode:   user.pincode   || '',
+        createdAt: user.createdAt
+      }
+    });
   } catch (err) {
     console.error('[Profile Fetch Error]', err.message);
-    res.status(500).json({ message: 'Failed to retrieve profile.' });
+    res.status(500).json({ success: false, message: 'Failed to retrieve profile.' });
   }
 };
 
@@ -36,32 +40,72 @@ exports.getProfile = async (req, res) => {
  * PUT /api/profile
  */
 exports.updateProfile = async (req, res) => {
+  const { name, phone, address, pincode } = req.body;
   const userId = req.user.id;
-  const { name, phone, address, city, pincode } = req.body;
 
   if (!name || name.trim().length < 2) {
-    return res.status(400).json({ message: 'Name must be at least 2 characters.' });
+    return res.status(400).json({
+      success: false,
+      message: 'Full name must be at least 2 characters'
+    });
+  }
+
+  if (!phone || phone.trim() === '') {
+    return res.status(400).json({
+      success: false,
+      message: 'Phone number is required'
+    });
+  }
+
+  if (!/^[0-9]{10}$/.test(phone.trim())) {
+    return res.status(400).json({
+      success: false,
+      message: 'Enter a valid 10-digit phone number'
+    });
+  }
+
+  if (pincode && !/^[0-9]{6}$/.test(pincode.trim())) {
+    return res.status(400).json({
+      success: false,
+      message: 'Enter a valid 6-digit pincode'
+    });
   }
 
   try {
-    await db.query(
-      'UPDATE users SET name = ?, phone = ?, address = ?, city = ?, pincode = ? WHERE id = ?',
-      [name.trim(), phone || null, address || null, city || null, pincode || null, userId]
-    );
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        name:    name.trim(),
+        phone:   phone.trim(),
+        address: address ? address.trim() : '',
+        pincode: pincode ? pincode.trim() : ''
+      },
+      { new: true, runValidators: false }
+    ).select('name email phone address pincode createdAt');
 
-    const [rows] = await db.query(
-      'SELECT id, name, email, phone, address, city, pincode FROM users WHERE id = ?',
-      [userId]
-    );
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
 
-    res.status(200).json({
+    res.json({
       success: true,
       message: 'Profile updated successfully',
-      data: rows[0]
+      data: {
+        id:        updatedUser._id,
+        name:      updatedUser.name      || '',
+        email:     updatedUser.email     || '',
+        phone:     updatedUser.phone     || '',
+        address:   updatedUser.address   || '',
+        pincode:   updatedUser.pincode   || '',
+        createdAt: updatedUser.createdAt
+      }
     });
   } catch (err) {
     console.error('[Profile Update Error]', err.message);
-    res.status(500).json({ message: 'Failed to update profile.' });
+    res.status(500).json({ success: false, message: 'Failed to update profile.' });
   }
 };
 
@@ -72,17 +116,16 @@ exports.updateProfile = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   const userId = req.user.id;
   try {
-    // Fetch email first for password_resets cleanup
-    const [userRows] = await db.query('SELECT email FROM users WHERE id = ?', [userId]);
-    if (userRows.length === 0) {
+    const user = await User.findById(userId);
+    if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
-    const email = userRows[0].email;
+    const email = user.email;
 
-    // Delete related records
-    await db.query('DELETE FROM favourites WHERE user_id = ?', [userId]);
-    await db.query('DELETE FROM password_resets WHERE email = ?', [email]);
-    await db.query('DELETE FROM users WHERE id = ?', [userId]);
+    // Delete related records then the user
+    await Favourite.deleteMany({ user_id: userId });
+    await PasswordReset.deleteMany({ email });
+    await User.findByIdAndDelete(userId);
 
     res.json({ success: true, message: 'Account deleted successfully.' });
   } catch (err) {

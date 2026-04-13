@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import ProductCard from '../components/ProductCard'
-import { 
-  Search, X, Loader2, AlertCircle, 
+import {
+  Search, X, Loader2, AlertCircle,
   MessageCircle, Star, Palette, Package, Heart,
   ArrowRight, Filter, ChevronDown, LayoutGrid
 } from 'lucide-react'
@@ -16,13 +16,13 @@ export default function Home() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  
+
   // Search & Filter State
   const [search, setSearch] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [sortBy, setSortBy] = useState('Default')
   const [priceFilter, setPriceFilter] = useState('All Prices')
-  
+
   // Interaction State
   const [favouriteIds, setFavouriteIds] = useState(new Set())
   const [recentlyViewed, setRecentlyViewed] = useState([])
@@ -36,7 +36,7 @@ export default function Home() {
         console.log('✅ Data received in Home.jsx:', data);
         console.log('📊 Is valid array?', Array.isArray(data));
         console.log('🔢 Length:', data?.length);
-        
+
         if (Array.isArray(data) && data.length > 0) {
           setProducts(data);
           console.log('🚀 State successfully updated with', data.length, 'products');
@@ -78,7 +78,7 @@ export default function Home() {
   const toggleFavourite = useCallback(async (prodId) => {
     const productId = Number(prodId);
     const isFav = favouriteIds.has(productId);
-    
+
     console.log(`✨ Heart Click: Product ${productId} | Currently Favourite: ${isFav}`);
 
     setFavouriteIds((prev) => {
@@ -123,7 +123,7 @@ export default function Home() {
     else if (priceFilter === '₹500 - ₹1000') matchesPrice = price >= 500 && price <= 1000
     else if (priceFilter === '₹1000 - ₹2000') matchesPrice = price >= 1000 && price <= 2000
     else if (priceFilter === 'Above ₹2000') matchesPrice = price > 2000
-    
+
     return matchesSearch && matchesPrice
   }).sort((a, b) => {
     if (sortBy === 'Price: Low to High') return a.price - b.price
@@ -140,9 +140,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans selection:bg-[#C87941]/20">
       {/* Background Dot Grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
-           style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-      
+      <div className="fixed inset-0 pointer-events-none opacity-[0.12]"
+        style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
       <Navbar favouriteCount={favouriteIds.size} />
 
       {/* Hero Section */}
@@ -152,14 +152,14 @@ export default function Home() {
             <Star size={12} className="fill-current" /> Artisanal Excellence
           </div>
           <h1 className="text-5xl md:text-7xl font-serif font-bold text-[#2C1810] leading-tight mb-6">
-            Handcrafted Treasures <br /> For Your <span className="text-[#C87941] italic">Unique Trove</span>
+            Handcrafted Resin <br /> keepsakes made to  <span className="text-[#C87941] italic">Preserve Your Moments</span>
           </h1>
           <p className="text-lg md:text-xl text-[#7A5542] max-w-2xl mx-auto font-light leading-relaxed mb-10">
             Exclusive resin art pieces, meticulously created to bring a touch of cosmic beauty into your everyday life.
           </p>
-          
+
           <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
-            <button 
+            <button
               onClick={() => {
                 const el = document.getElementById('collection-header');
                 el?.scrollIntoView({ behavior: 'smooth' });
@@ -168,7 +168,7 @@ export default function Home() {
             >
               Shop Collection
             </button>
-            <button 
+            <button
               onClick={() => navigate('/customize')}
               className="px-8 py-3.5 rounded-full bg-white text-[#C87941] border-2 border-[#C87941] font-bold hover:bg-[#FEF0E3] transition-all active:scale-95 flex items-center gap-2"
             >
@@ -181,17 +181,17 @@ export default function Home() {
         <div className="max-w-[600px] mx-auto relative z-20 animate-search-reveal mt-4">
           <div className={`
             relative flex items-center bg-white rounded-full border-[1.5px] p-1.5 transition-all duration-500
-            ${isSearchFocused 
-              ? 'border-[#C87941] shadow-[0_6px_32px_rgba(200,121,65,0.18),0_0_0_4px_rgba(200,121,65,0.08)] -translate-y-0.5' 
+            ${isSearchFocused
+              ? 'border-[#C87941] shadow-[0_6px_32px_rgba(200,121,65,0.18),0_0_0_4px_rgba(200,121,65,0.08)] -translate-y-0.5'
               : 'border-[#DEC5A8] shadow-[0_4px_24px_rgba(200,121,65,0.10),0_1px_4px_rgba(44,26,14,0.06)]'}
           `}>
             <div className="pl-4 pr-3 flex-shrink-0">
-              <Search 
-                size={20} 
-                className={`transition-colors duration-300 ${isSearchFocused ? 'text-[#C87941]' : 'text-[#B08060]'}`} 
+              <Search
+                size={20}
+                className={`transition-colors duration-300 ${isSearchFocused ? 'text-[#C87941]' : 'text-[#B08060]'}`}
               />
             </div>
-            
+
             <input
               ref={searchInputRef}
               type="text"
@@ -204,7 +204,7 @@ export default function Home() {
             />
 
             {search && (
-              <button 
+              <button
                 onClick={clearSearch}
                 className="p-1.5 rounded-full hover:bg-[#C87941]/10 text-[#9C7B65] hover:text-[#C87941] transition-all mr-1"
               >
@@ -216,7 +216,7 @@ export default function Home() {
               Search
             </button>
           </div>
-          
+
           <div className={`text-right mt-2 transition-opacity duration-300 ${isSearchFocused ? 'opacity-100' : 'opacity-0'}`}>
             <span className="text-[0.72rem] text-[#C4A882] italic font-medium">Press Enter to search</span>
           </div>
@@ -225,7 +225,7 @@ export default function Home() {
 
       {/* Main Content Area */}
       <main className="w-full px-4 md:px-12 py-12 flex flex-col lg:flex-row gap-10">
-        
+
         {/* TASK 3 — LEFT SIDEBAR (Desktop) */}
         <aside className="hidden lg:block w-[220px] flex-shrink-0">
           <div className="sticky top-28 space-y-8">
@@ -235,12 +235,12 @@ export default function Home() {
                 {['All Prices', 'Under ₹500', '₹500 - ₹1000', '₹1000 - ₹2000', 'Above ₹2000'].map(range => (
                   <label key={range} className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center">
-                      <input 
-                        type="radio" 
-                        name="price" 
-                        checked={priceFilter === range} 
+                      <input
+                        type="radio"
+                        name="price"
+                        checked={priceFilter === range}
                         onChange={() => setPriceFilter(range)}
-                        className="peer appearance-none w-4 h-4 rounded-full border-[1.5px] border-[#DEC5A8] checked:border-[#C87941] transition-all" 
+                        className="peer appearance-none w-4 h-4 rounded-full border-[1.5px] border-[#DEC5A8] checked:border-[#C87941] transition-all"
                       />
                       <div className="absolute w-2 h-2 rounded-full bg-[#C87941] opacity-0 peer-checked:opacity-100 transition-opacity" />
                     </div>
@@ -260,12 +260,12 @@ export default function Home() {
                 {['Default', 'Price: Low to High', 'Price: High to Low', 'Name: A-Z'].map(option => (
                   <label key={option} className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center">
-                      <input 
-                        type="radio" 
-                        name="sort" 
-                        checked={sortBy === option} 
+                      <input
+                        type="radio"
+                        name="sort"
+                        checked={sortBy === option}
                         onChange={() => setSortBy(option)}
-                        className="peer appearance-none w-4 h-4 rounded-full border-[1.5px] border-[#DEC5A8] checked:border-[#C87941] transition-all" 
+                        className="peer appearance-none w-4 h-4 rounded-full border-[1.5px] border-[#DEC5A8] checked:border-[#C87941] transition-all"
                       />
                       <div className="absolute w-2 h-2 rounded-full bg-[#C87941] opacity-0 peer-checked:opacity-100 transition-opacity" />
                     </div>
@@ -316,8 +316,8 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <div className="lg:hidden">
                 <label className="text-xs font-bold text-[#9C7B65] mr-2">SORT BY:</label>
-                <select 
-                  value={sortBy} 
+                <select
+                  value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="bg-white border-[1.5px] border-[#DEC5A8] rounded-full px-4 py-2 text-sm font-medium text-[#5C3D2A] outline-none hover:border-[#C87941] shadow-sm"
                 >
@@ -347,7 +347,7 @@ export default function Home() {
               </div>
               <h3 className="font-serif text-2xl font-bold text-[#5C3D2A] mb-2">No products found for "{search}"</h3>
               <p className="text-[#9C7B65] mb-8">Try adjusting your filters or search keywords.</p>
-              <button 
+              <button
                 onClick={() => { setSearch(''); setPriceFilter('All Prices'); }}
                 className="px-8 py-3 rounded-full border-2 border-[#C87941] text-[#C87941] font-bold hover:bg-[#C87941] hover:text-white transition-all"
               >
@@ -358,7 +358,7 @@ export default function Home() {
             /* DYNAMIC FLUID GRID */
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 w-full animate-fade-in">
               {filteredProducts.map(product => (
-                <ProductCard 
+                <ProductCard
                   key={product.id}
                   product={product}
                   isFavourite={favouriteIds.has(Number(product.id))}
@@ -380,10 +380,10 @@ export default function Home() {
                   recentlyViewed.map(p => (
                     <div key={p.id} className="group flex items-center gap-3 cursor-pointer animate-fade-in">
                       <div className="w-12 h-12 rounded-lg overflow-hidden border border-[#EDD9C0] flex-shrink-0">
-                        <img 
-                          src={p.image_url.startsWith('http') ? p.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${p.image_url}`} 
+                        <img
+                          src={p.image_url.startsWith('http') ? p.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${p.image_url}`}
                           alt={p.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform" 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -425,7 +425,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-6">
-              <img src="/images/icon.png" alt="Logo" className="w-10 h-10" />
+              <img src="/images/icon.jpg?v=3" alt="Logo" className="w-10 h-10 rounded-full object-cover" />
               <h2 className="font-serif text-2xl font-bold text-[#2C1810]">RKL Trove</h2>
             </div>
             <p className="text-[#9C7B65] text-sm leading-relaxed max-w-sm">
@@ -460,7 +460,8 @@ export default function Home() {
       </footer>
 
       {/* Global CSS for Home-specific animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes searchReveal {
           from { opacity: 0; transform: translateY(16px) scaleX(0.95); }
           to   { opacity: 1; transform: translateY(0) scaleX(1); }

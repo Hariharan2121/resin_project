@@ -195,7 +195,7 @@ export default function Signup() {
 
         <div className="logo-frame-outer" style={styles.logoFrame}>
            <div className="logo-ring-dashed" style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', border: '1px dashed rgba(200,121,65,0.25)', zIndex: 1 }} />
-           <img src="/images/icon.png" alt="RKL Trove Logo" className="logo-img-floating" style={{ height: '120px', width: '120px', objectFit: 'contain' }} />
+           <img src="/images/icon.jpg?v=3" alt="RKL Trove Logo" className="logo-img-floating" style={{ height: '120px', width: '120px', objectFit: 'cover', borderRadius: '50%' }} />
         </div>
 
         <div>
@@ -240,7 +240,7 @@ export default function Signup() {
            animationDelay: '150ms'
         }}>
           <div className="mobile-brand">
-            <img src="/images/icon.png" alt="RKL Logo" style={{ height: '64px', marginBottom: '12px' }} />
+            <img src="/images/icon.jpg?v=3" alt="RKL Logo" style={{ height: '64px', width: '64px', objectFit: 'cover', borderRadius: '50%', marginBottom: '12px' }} />
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.05em' }}>RKL Trove</h2>
             <div style={{ width: '40px', height: '2px', background: '#C87941', marginTop: '4px' }} />
           </div>

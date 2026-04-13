@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const db = require('../config/db')
+const Favourite = require('../models/Favourite')
+const Product = require('../models/Product')
 const authMiddleware = require('../middleware/authMiddleware')
 
 /**
@@ -8,19 +9,21 @@ const authMiddleware = require('../middleware/authMiddleware')
  */
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const [rows] = await db.query(
-      `SELECT p.id, p.name, p.price, p.image_url, p.description, p.created_at FROM products p
-       JOIN favourites f ON p.id = f.product_id
-       WHERE f.user_id = ?`,
-      [req.user.id]
-    )
-    
-    // Formatting price and description for frontend consistency
-    const data = rows.map(p => ({
-      ...p,
-      price: parseFloat(p.price) || 0,
-      description: p.description || ''
-    }));
+    const favourites = await Favourite.find({ user_id: req.user.id }).populate('product_id')
+
+    const data = favourites
+      .filter(f => f.product_id) // guard against orphaned refs
+      .map(f => {
+        const p = f.product_id
+        return {
+          id:          p._id.toString(),
+          name:        p.name        || '',
+          price:       parseFloat(p.price) || 0,
+          image_url:   p.image_url   || '',
+          description: p.description || '',
+          createdAt:   p.createdAt
+        }
+      })
 
     res.json({ success: true, data })
   } catch (err) {
@@ -36,11 +39,11 @@ router.post('/', authMiddleware, async (req, res) => {
   const productId = req.body.productId
   if (!productId) return res.status(400).json({ message: 'Product ID required.' })
   try {
-    // MySQL equivalent of ON CONFLICT DO NOTHING is INSERT IGNORE
-    await db.query(
-      'INSERT IGNORE INTO favourites (user_id, product_id) VALUES (?, ?)',
-      [req.user.id, productId]
-    )
+    const existing = await Favourite.findOne({ user_id: req.user.id, product_id: productId })
+    if (existing) return res.json({ success: true, message: 'Already in favourites.' })
+
+    const fav = new Favourite({ user_id: req.user.id, product_id: productId })
+    await fav.save()
     res.json({ success: true, message: 'Updated favourites.' })
   } catch (err) {
     console.error('[Add Favourite Error]', err)
@@ -54,10 +57,7 @@ router.post('/', authMiddleware, async (req, res) => {
 router.delete('/:productId', authMiddleware, async (req, res) => {
   const { productId } = req.params
   try {
-    await db.query(
-      'DELETE FROM favourites WHERE user_id = ? AND product_id = ?',
-      [req.user.id, productId]
-    )
+    await Favourite.findOneAndDelete({ user_id: req.user.id, product_id: productId })
     res.json({ success: true, message: 'Removed from favourites.' })
   } catch (err) {
     console.error('[Remove Favourite Error]', err)

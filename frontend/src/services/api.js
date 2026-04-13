@@ -55,8 +55,35 @@ export const getProductById = async (id) => {
 /**
  * Profile Services
  */
-export const getProfile = () => api.get('/api/profile');
-export const updateProfile = (data) => api.put('/api/profile', data);
+export const getProfile = async () => {
+  const token = localStorage.getItem('rkl_token');
+  const response = await api.get('/api/profile', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (response.data.success) {
+    return response.data.data;
+  }
+  throw new Error('Failed to fetch profile');
+};
+
+export const updateProfile = async (profileData) => {
+  try {
+    const token = localStorage.getItem('rkl_token');
+    const response = await api.put('/api/profile', profileData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (response.data.success) {
+      return response.data;
+    }
+    throw new Error(response.data.message || 'Update failed');
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
+  }
+};
+
 export const deleteAccount = () => api.delete('/api/profile');
 
 /**
@@ -67,9 +94,12 @@ export const addFavourite = (productId) => api.post('/api/favourites', { product
 export const removeFavourite = (productId) => api.delete(`/api/favourites/${productId}`);
 
 /**
- * Custom Order
+ * Order Services
  */
 export const submitCustomOrder = (orderData) => api.post('/api/order/custom', orderData);
+export const getMyOrders = () => api.get('/api/order/mine');
+export const getAllOrdersAdmin = () => api.get('/api/order/admin/all');
+export const updateOrderStatusAdmin = (id, status) => api.patch(`/api/order/${id}/status`, { status });
 
 /**
  * Auth Services
@@ -77,5 +107,19 @@ export const submitCustomOrder = (orderData) => api.post('/api/order/custom', or
 export const forgotPassword = (email) => api.post('/api/forgot-password', { email });
 export const verifyOtp = (email, otp) => api.post('/api/verify-otp', { email, otp });
 export const resetPassword = (email, otp, newPassword) => api.post('/api/reset-password', { email, otp, newPassword });
+
+/**
+ * Admin Upload Services
+ */
+export const uploadProductsExcel = async (formData) => {
+  const token = localStorage.getItem('rkl_token');
+  const response = await api.post('/api/bulk-upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  });
+  return response.data;
+};
 
 export default api;

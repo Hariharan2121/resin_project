@@ -246,8 +246,8 @@
 .profile-page-container {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  padding: 40px 20px;
+  flex-direction: column;
+  padding: 0;
 }
 
 .profile-wrapper {

@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const Product = require('../models/Product');
 
 /**
  * GET /api/products
@@ -6,20 +6,18 @@ const db = require('../config/db');
  */
 const getProducts = async (req, res) => {
   try {
-    const [rows] = await db.query(
-      'SELECT id, name, price, image_url, description, created_at FROM products ORDER BY created_at DESC'
-    );
-    
-    const products = rows.map(product => ({
-      id:          product.id,
+    const products = await Product.find().sort({ createdAt: -1 });
+
+    const data = products.map(product => ({
+      id:          product._id.toString(),
       name:        product.name        || '',
       price:       parseFloat(product.price) || 0,
       image_url:   product.image_url   || '',
       description: product.description || '',
-      created_at:  product.created_at
+      createdAt:   product.createdAt
     }));
 
-    res.json({ success: true, data: products });
+    res.json({ success: true, data });
   } catch (error) {
     console.error('Get products error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch products' });
@@ -32,22 +30,21 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await db.query(
-      'SELECT id, name, price, image_url, description, created_at FROM products WHERE id = ?',
-      [id]
-    );
+    const product = await Product.findById(id);
 
-    if (rows.length === 0) {
+    if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    const product = rows[0];
     res.json({
       success: true,
       data: {
-        ...product,
-        price: parseFloat(product.price) || 0,
-        description: product.description || ''
+        id:          product._id.toString(),
+        name:        product.name,
+        price:       parseFloat(product.price) || 0,
+        image_url:   product.image_url   || '',
+        description: product.description || '',
+        createdAt:   product.createdAt
       }
     });
   } catch (error) {
@@ -59,51 +56,34 @@ const getProductById = async (req, res) => {
 /**
  * --- ADMIN ACTION ---
  * GET /api/products/admin/seed
- * This seeds the database with the full artisan collection.
- * Required for remote deployment (Render) where direct shell access is limited.
+ * Seeds the database with the full artisan collection using Mongoose upserts.
  */
 const seedDatabase = async (req, res) => {
   try {
     console.log('--- Remote Seeding Triggered ---');
-    await db.query('SET FOREIGN_KEY_CHECKS = 0');
-    await db.query('DROP TABLE IF EXISTS products');
-    await db.query(`
-      CREATE TABLE products (
-        id          INT AUTO_INCREMENT PRIMARY KEY,
-        name        VARCHAR(150)   NOT NULL,
-        price       DECIMAL(10,2)  NOT NULL DEFAULT 0.00,
-        image_url   TEXT,
-        description TEXT,
-        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    await db.query('SET FOREIGN_KEY_CHECKS = 1');
 
     const products = [
-      ['Luxe Pot collection - Opaline Luxe 1', 299.00, '/images/product_1.jpg', 'Artisan resin pot with beautiful gold leaf accents.'],
-      ['Luxe Pot collection - Opaline Luxe 2', 399.00, '/images/product_1.jpg', 'Artisan resin pot with beautiful gold leaf accents.'],
-      ['Luxe Pot collection - Opaline Luxe 3', 499.00, '/images/product_1.jpg', 'Artisan resin pot with beautiful gold leaf accents.'],
-      ['Luxe Pot collection - Opaline Luxe 4', 359.00, '/images/product_1.jpg', 'Artisan resin pot with beautiful gold leaf accents.'],
-      ['Coastal Collection - Obsidian shore', 599.00, '/images/product_11.jpg', 'Handcrafted resin piece inspired by the night ocean.'],
-      ['Floral Frame - Rosewood Mist', 699.00, '/images/product_16.jpg', 'Antique inspired frame with real preserved rose petals.'],
-      ['Midnight Moon - Keychains', 199.00, '/images/product_3.jpg', 'Glowing midnight moon keychain for your keys.'],
-      ['Ethereal Tray - Marble Wave', 1299.00, '/images/product_14.jpg', 'Luxury resin tray with marble-wave effects.'],
-      ['Rose Gold - Trinket Dish', 450.00, '/images/product_2.jpg', 'Beautiful rose gold trinket dish for jewelry.'],
-      ['Oceanic Breeze - Wall Art', 2499.00, '/images/product_11.jpg', 'Large resin wall art capturing the beauty of the sea.'],
-      ['Celestial Coasters - Nebula', 850.00, '/images/product_2.jpg', 'Hand-painted celestial coasters with resin finish.'],
-      ['Luminous Lantern - Amber Glow', 1599.00, '/images/product_14.jpg', 'Artisan lantern that glows with amber resin light.'],
-      ['Vintage Petals - Keepsake', 750.00, '/images/product_16.jpg', 'Forever preserved vintage petals in resin.'],
-      ['Aura Pendant - Emerald Green', 399.00, '/images/product_7.jpg', 'Hand-poured resin pendant with deep emerald aura.'],
-      ['Stardust Shimmer - Jewelry Box', 1899.00, '/images/product_14.jpg', 'Elegant jewelry box with shimmer resin coating.'],
-      ['Golden Ginkgo - Bookmark', 150.00, '/images/product_3.jpg', 'Artistic golden ginkgo leaf bookmark in clear resin.']
+      { name: 'Luxe Pot collection - Opaline Luxe 1', price: 299.00, image_url: '/images/product_1.jpg',  description: 'Artisan resin pot with beautiful gold leaf accents.' },
+      { name: 'Luxe Pot collection - Opaline Luxe 2', price: 399.00, image_url: '/images/product_1.jpg',  description: 'Artisan resin pot with beautiful gold leaf accents.' },
+      { name: 'Luxe Pot collection - Opaline Luxe 3', price: 499.00, image_url: '/images/product_1.jpg',  description: 'Artisan resin pot with beautiful gold leaf accents.' },
+      { name: 'Luxe Pot collection - Opaline Luxe 4', price: 359.00, image_url: '/images/product_1.jpg',  description: 'Artisan resin pot with beautiful gold leaf accents.' },
+      { name: 'Coastal Collection - Obsidian shore',   price: 599.00, image_url: '/images/product_11.jpg', description: 'Handcrafted resin piece inspired by the night ocean.' },
+      { name: 'Floral Frame - Rosewood Mist',          price: 699.00, image_url: '/images/product_16.jpg', description: 'Antique inspired frame with real preserved rose petals.' },
+      { name: 'Midnight Moon - Keychains',             price: 199.00, image_url: '/images/product_3.jpg',  description: 'Glowing midnight moon keychain for your keys.' },
+      { name: 'Ethereal Tray - Marble Wave',           price: 1299.00, image_url: '/images/product_14.jpg', description: 'Luxury resin tray with marble-wave effects.' },
+      { name: 'Rose Gold - Trinket Dish',              price: 450.00, image_url: '/images/product_2.jpg',  description: 'Beautiful rose gold trinket dish for jewelry.' },
+      { name: 'Oceanic Breeze - Wall Art',             price: 2499.00, image_url: '/images/product_11.jpg', description: 'Large resin wall art capturing the beauty of the sea.' },
+      { name: 'Celestial Coasters - Nebula',          price: 850.00, image_url: '/images/product_2.jpg',  description: 'Hand-painted celestial coasters with resin finish.' },
+      { name: 'Luminous Lantern - Amber Glow',        price: 1599.00, image_url: '/images/product_14.jpg', description: 'Artisan lantern that glows with amber resin light.' },
+      { name: 'Vintage Petals - Keepsake',            price: 750.00, image_url: '/images/product_16.jpg', description: 'Forever preserved vintage petals in resin.' },
+      { name: 'Aura Pendant - Emerald Green',         price: 399.00, image_url: '/images/product_7.jpg',  description: 'Hand-poured resin pendant with deep emerald aura.' },
+      { name: 'Stardust Shimmer - Jewelry Box',       price: 1899.00, image_url: '/images/product_14.jpg', description: 'Elegant jewelry box with shimmer resin coating.' },
+      { name: 'Golden Ginkgo - Bookmark',             price: 150.00, image_url: '/images/product_3.jpg',  description: 'Artistic golden ginkgo leaf bookmark in clear resin.' }
     ];
 
-    for (const [name, price, img, desc] of products) {
-      await db.query(
-        'INSERT INTO products (name, price, image_url, description) VALUES (?, ?, ?, ?)',
-        [name, price, img, desc]
-      );
-    }
+    // Delete existing and re-insert
+    await Product.deleteMany({});
+    await Product.insertMany(products);
 
     res.json({ success: true, message: 'Database reset and 16 products seeded successfully on remote.' });
   } catch (error) {

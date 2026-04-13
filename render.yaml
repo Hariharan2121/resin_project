@@ -11,12 +11,13 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: DATABASE_URL
-        fromDatabase:
-          name: rkl-db
-          property: connectionString
-
-databases:
-  # Free PostgreSQL Database
-  - name: rkl-db
-    plan: free
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_PORT
+        value: 3306

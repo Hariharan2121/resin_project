@@ -15,6 +15,8 @@ import ResetPassword from './pages/ResetPassword'
 import Profile from './pages/Profile'
 import ProductDetail from './pages/ProductDetail'
 import CustomizeStudio from './pages/CustomizeStudio'
+import AdminUpload from './pages/AdminUpload'
+import AdminOrders from './pages/AdminOrders'
 
 export default function App() {
   return (
@@ -43,6 +45,8 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/admin-upload" element={<AdminUpload />} />
+            <Route path="/admin-orders" element={<AdminOrders />} />
 
             {/* Protected routes */}
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />

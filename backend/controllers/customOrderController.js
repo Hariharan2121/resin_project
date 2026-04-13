@@ -1,8 +1,9 @@
 const nodemailer = require('nodemailer');
+const Order = require('../models/Order');
 
 /**
  * POST /api/order/custom
- * Handle custom design studio order requests and send email to admin.
+ * Handle custom design studio order requests — saves to MongoDB then sends email to admin.
  */
 const customOrderHandler = async (req, res) => {
   const {
@@ -26,16 +27,40 @@ const customOrderHandler = async (req, res) => {
   }
 
   try {
+    // 1. Save to MongoDB
+    const inclusionsList = Array.isArray(inclusions) && inclusions.length > 0
+      ? inclusions.join(', ')
+      : 'None';
+
+    const order = new Order({
+      user_id:       req.user?.id || null,
+      userName:      userName || 'Not provided',
+      userEmail:     userEmail,
+      totalPrice:    parseFloat(estimatedPrice) || 0,
+      orderType:     'custom',
+      customDetails: {
+        productType,
+        baseColor,
+        inclusions: inclusionsList,
+        customText,
+        textFont,
+        textColor,
+        shape,
+        size,
+        finish,
+        specialInstructions
+      }
+    });
+
+    await order.save();
+
+    // 2. Send email notification
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.MAIL_PORT || '587'),
       secure: false,
       auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
     });
-
-    const inclusionsList = Array.isArray(inclusions) && inclusions.length > 0
-      ? inclusions.join(', ')
-      : 'None';
 
     const html = `
       <!DOCTYPE html>
@@ -68,6 +93,10 @@ const customOrderHandler = async (req, res) => {
               <p>Submitted via RKL Trove Design Studio</p>
             </div>
             <div class="body">
+              <div class="sec">
+                <div class="sec-title">Order ID</div>
+                <div class="row"><span class="val">${order._id}</span></div>
+              </div>
               <div class="sec">
                 <div class="sec-title">Customer Details</div>
                 <div class="row"><span class="lbl">Name:</span><span class="val">${userName || 'Not provided'}</span></div>

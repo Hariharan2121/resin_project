@@ -7,15 +7,14 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/order');
 const favouritesRoutes = require('./routes/favourites');
-const profileRoutes = require('./routes/profileRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
 // Top level debug route
 app.get('/api/top-health', (req, res) => res.json({ status: 'top-ok' }));
 
-// --- Step 7: CORS setup ---
-// Allowing any origin during development, or specific if required
+// --- CORS setup ---
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -35,7 +34,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Profile Routing - Registered directly and redundantly
+// Profile Routing — registered directly for reliability
 const profileController = require('./controllers/profileController');
 const authMiddleware = require('./middleware/authMiddleware');
 
@@ -43,30 +42,29 @@ const authMiddleware = require('./middleware/authMiddleware');
 app.get('/api/debug-profile', (req, res) => res.json({ status: 'debug-ok', help: 'If you see this, routing works' }));
 
 // Actual profile routes
-app.get('/api/profile', authMiddleware, profileController.getProfile);
+app.get('/api/profile',  authMiddleware, profileController.getProfile);
 app.get('/api/profile/', authMiddleware, profileController.getProfile);
-app.put('/api/profile', authMiddleware, profileController.updateProfile);
+app.put('/api/profile',  authMiddleware, profileController.updateProfile);
 app.put('/api/profile/', authMiddleware, profileController.updateProfile);
 app.delete('/api/profile', authMiddleware, profileController.deleteAccount);
 
 // --- Route Registrations ---
-app.use('/api', authRoutes); 
+app.use('/api/bulk-upload', uploadRoutes);
+app.use('/api', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/favourites', favouritesRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok-v-final-debug', timestamp: new Date().toISOString() }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', db: 'mongodb', timestamp: new Date().toISOString() }));
 
-// Database check (legacy endpoint)
+// MongoDB connection check
 app.get('/api/test-db', async (req, res) => {
-  const db = require('./config/db');
-  try {
-    const [result] = await db.query('SELECT NOW()');
-    res.json({ success: true, time: result[0], message: 'MySQL connected!' });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+  const mongoose = require('mongoose');
+  const state = mongoose.connection.readyState;
+  // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  const stateMap = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+  res.json({ success: state === 1, db: 'mongodb', state: stateMap[state] || state });
 });
 
 // 404 handler

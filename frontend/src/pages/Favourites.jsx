@@ -124,7 +124,7 @@ export default function Favourites() {
       <footer className="py-20 px-6 bg-white border-t border-[#EDD9C0]">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
             <div className="flex items-center gap-3 mb-6">
-              <img src="/images/icon.png" alt="Logo" className="w-10 h-10" />
+              <img src="/images/icon.jpg?v=3" alt="Logo" className="w-10 h-10 rounded-full object-cover" />
               <h2 className="font-serif text-2xl font-bold text-[#2C1810]">RKL Trove</h2>
             </div>
             <p className="text-[#9C7B65] text-xs tracking-[0.3em] uppercase max-w-sm border-t border-[#F5E6D3] pt-8">
