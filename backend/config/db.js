@@ -3,29 +3,34 @@ require('dotenv').config();
 
 const connectDB = async () => {
   try {
-    const uri = process.env.MONGO_URI;
+    // Try MONGO_URI then fallback to DATABASE_URL (common on some platforms)
+    const uri = process.env.MONGO_URI || process.env.DATABASE_URL;
+    
+    console.log('--- 🛡️ V2-ANTIGRAVITY DB INITIALIZER ---');
+    
     if (!uri) {
-      console.error('❌ MONGO_URI is not defined in environment variables');
+      console.error('❌ CRITICAL: Neither MONGO_URI nor DATABASE_URL is defined');
+      console.error('Current Keys:', Object.keys(process.env).filter(k => k.includes('URL') || k.includes('URI') || k.includes('DB')));
       process.exit(1);
     }
     
     // Log a masked version of URI to verify it exists without exposing credentials
     const maskedUri = uri.replace(/\/\/.*@/, '//****:****@');
-    console.log(`📡 Attempting to connect to MongoDB: ${maskedUri}`);
+    console.log(`📡 Connecting to: [${maskedUri}]`);
 
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s
+      serverSelectionTimeoutMS: 10000, // Increased timeout
     });
     
     console.log('✅ MongoDB connected successfully');
   } catch (err) {
-    console.error('❌ MongoDB connection failed!');
-    console.error('   Error Code:', err.code);
-    console.error('   Error Message:', err.message);
+    console.error('❌ MongoDB Connection Failure!');
+    console.error('   Code:', err.code);
+    console.error('   Note:', err.message);
     
-    if (err.message.includes('IP address') || err.message.includes('whitelist')) {
-      console.error('   👉 ACTION REQUIRED: Your current IP might not be whitelisted in MongoDB Atlas.');
-      console.error('   👉 Go to MongoDB Atlas > Network Access > Add 0.0.0.0/0 to allow access from all IPs.');
+    if (err.code === 'ENOTFOUND') {
+      console.error('   🔴 DNS ERROR: The hostname cluster0.n8hozm7.mongodb.net could not be resolved.');
+      console.error('   👉 FIX: Check if there are hidden characters (like quotes or spaces) in your Render ENV variable.');
     }
     
     process.exit(1);
