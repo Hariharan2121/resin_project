@@ -12,22 +12,53 @@ const TOKEN_EXPIRES = '7d'
 // ─── Signup ───
 router.post('/signup', async (req, res) => {
   const { name, email, password } = req.body
+  
+  if (!process.env.JWT_SECRET) {
+    console.error('❌ CRITICAL ERROR: JWT_SECRET is missing from environment variables!')
+    return res.status(500).json({ message: 'Server configuration error.' })
+  }
+
   if (!name || !email || !password) return res.status(400).json({ message: 'All fields required.' })
+  
   try {
-    const existing = await User.findOne({ email: email.toLowerCase() })
+    const emailLower = email.toLowerCase().trim()
+    const existing = await User.findOne({ email: emailLower })
     if (existing) return res.status(409).json({ message: 'Email already exists.' })
 
+    console.log(`📝 Registering new user: ${emailLower}`)
+    
+    // Hash password
     const hashed = await bcrypt.hash(password, SALT_ROUNDS)
-    const role = (email.toLowerCase() === process.env.ADMIN_EMAIL?.toLowerCase()) ? 'admin' : 'user'
-    const user = new User({ name: name.trim(), email: email.toLowerCase(), password: hashed, role })
+    
+    const adminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.toLowerCase().trim() : null
+    const role = (emailLower === adminEmail) ? 'admin' : 'user'
+    
+    const user = new User({ name: name.trim(), email: emailLower, password: hashed, role })
     await user.save()
+    console.log('✅ User saved to database successfully')
 
     const payload = { id: user._id.toString(), name: user.name, email: user.email, role: user.role }
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRES })
-    res.status(201).json({ token, user: payload })
+    
+    try {
+      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRES })
+      res.status(201).json({ token, user: payload })
+    } catch (jwtErr) {
+      console.error('❌ Token generation failed:', jwtErr.message)
+      res.status(500).json({ message: 'Login failed after signup. Please try logging in manually.' })
+    }
   } catch (err) {
-    console.error('Signup error:', err)
-    res.status(500).json({ message: 'Signup failed.' })
+    console.error('❌ Signup error details:', {
+      message: err.message,
+      name: err.name,
+      code: err.code,
+      stack: err.stack
+    })
+    
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Invalid data format.', details: Object.keys(err.errors) })
+    }
+    
+    res.status(500).json({ message: 'Signup failed. Please try again later.' })
   }
 })
 
