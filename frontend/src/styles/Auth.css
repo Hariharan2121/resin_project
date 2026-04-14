@@ -115,15 +115,16 @@
 }
 
 .logo-ring-dashed {
-  animation: rotateDashedRing 25s linear infinite;
+  /* animation: rotateDashedRing 25s linear infinite; */
 }
 
 .logo-frame-outer {
-  animation: pulseGlow 3s ease-in-out infinite;
+  /* animation: pulseGlow 3s ease-in-out infinite; */
+  box-shadow: 0 8px 32px rgba(200,121,65,0.20);
 }
 
 .logo-img-floating {
-  animation: floatLogo 4s ease-in-out infinite;
+  /* animation: floatLogo 4s ease-in-out infinite; */
 }
 
 .badge-item {

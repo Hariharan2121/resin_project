@@ -87,8 +87,8 @@ export default function Navbar({ favouriteCount = 0 }) {
           <img
             src="/images/icon.jpg?v=3"
             alt="RKL Trove Logo"
-            className="h-[44px] w-[44px] rounded-full object-cover transition-all duration-300 group-hover:brightness-125"
-            style={{ filter: 'drop-shadow(0 0 8px rgba(212,175,136,0.2))' }}
+            className="h-[44px] w-[44px] rounded-full object-cover"
+            style={{ objectPosition: 'center' }}
           />
           <h1 className="font-bold text-[1.25rem] md:text-[1.5rem] tracking-[0.02em] font-serif leading-none pt-0.5"
             style={{

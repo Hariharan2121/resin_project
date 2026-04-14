@@ -92,17 +92,17 @@ export default function Login() {
       width: '160px',
       height: '160px',
       borderRadius: '50%',
-      background: 'rgba(255,255,255,0.35)',
-      border: '2px solid rgba(200,121,65,0.30)',
+      background: 'transparent',
+      border: 'none',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backdropFilter: 'blur(8px)',
+      /* backdropFilter: 'blur(8px)', */
       position: 'relative',
       zIndex: 2,
-      opacity: mounted ? 1 : 0,
-      animation: mounted ? 'scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : 'none',
-      animationDelay: '150ms'
+      opacity: 1,
+      /* animation: mounted ? 'scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : 'none', */
+      /* animationDelay: '150ms' */
     },
     dashedRing: {
       position: 'absolute',
@@ -126,9 +126,9 @@ export default function Login() {
       letterSpacing: '0.04em',
       marginTop: '24px',
       textAlign: 'center',
-      opacity: mounted ? 1 : 0,
-      animation: mounted ? 'fadeSlideUp 0.5s ease-out forwards' : 'none',
-      animationDelay: '400ms'
+      opacity: 1,
+      /* animation: mounted ? 'fadeSlideUp 0.5s ease-out forwards' : 'none', */
+      /* animationDelay: '400ms' */
     },
     decorativeLine: {
       width: '60px',
@@ -136,17 +136,17 @@ export default function Login() {
       background: 'linear-gradient(90deg, transparent, #C87941, transparent)',
       margin: '10px auto 0 auto',
       borderRadius: '2px',
-      opacity: mounted ? 1 : 0,
-      animation: 'fadeIn 0.4s ease-out forwards',
-      animationDelay: '550ms'
+      opacity: 1,
+      /* animation: 'fadeIn 0.4s ease-out forwards', */
+      /* animationDelay: '550ms' */
     },
     taglineWrapper: {
       position: 'relative',
       marginTop: '16px',
       marginBottom: '40px',
-      opacity: mounted ? 1 : 0,
-      animation: 'fadeSlideUp 0.5s ease-out forwards',
-      animationDelay: '600ms'
+      opacity: 1,
+      /* animation: 'fadeSlideUp 0.5s ease-out forwards', */
+      /* animationDelay: '600ms' */
     },
     tagline: {
       fontSize: '1.1rem',
@@ -235,9 +235,8 @@ export default function Login() {
         <div className="diamond-shape" style={styles.diamond('40%', '85%', 0.20, 3.8, '0.5s')} />
         <div className="diamond-shape" style={styles.diamond('80%', '20%', 0.15, 6.2, '1.5s')} />
         
-        <div className="logo-frame-outer" style={styles.logoFrame}>
-           <div className="logo-ring-dashed" style={styles.dashedRing} />
-           <img src="/images/icon.jpg?v=3" alt="RKL Trove Logo" className="logo-img-floating" style={{ height: '120px', width: '120px', objectFit: 'cover', borderRadius: '50%' }} />
+        <div style={{ position: 'relative', marginBottom: '32px' }}>
+           <img src="/images/icon.jpg?v=3" alt="RKL Trove Logo" style={{ height: '160px', width: '160px', objectFit: 'cover', borderRadius: '50%', boxShadow: '0 8px 32px rgba(44,26,14,0.15)' }} />
         </div>
 
         <div>

@@ -121,9 +121,9 @@ export default function Signup() {
       backdropFilter: 'blur(8px)',
       position: 'relative',
       zIndex: 2,
-      opacity: mounted ? 1 : 0,
-      animation: mounted ? 'scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : 'none',
-      animationDelay: '150ms'
+      opacity: 1,
+      /* animation: mounted ? 'scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : 'none', */
+      /* animationDelay: '150ms' */
     },
     dashedRing: {
       position: 'absolute',
@@ -147,9 +147,9 @@ export default function Signup() {
       letterSpacing: '0.04em',
       marginTop: '24px',
       textAlign: 'center',
-      opacity: mounted ? 1 : 0,
-      animation: mounted ? 'fadeSlideUp 0.5s ease-out forwards' : 'none',
-      animationDelay: '400ms'
+      opacity: 1,
+      /* animation: mounted ? 'fadeSlideUp 0.5s ease-out forwards' : 'none', */
+      /* animationDelay: '400ms' */
     },
     tagline: {
       fontSize: '1.1rem',
@@ -193,17 +193,16 @@ export default function Signup() {
           <div className="corner-bracket-v" style={{ width: 1.5, background: 'rgba(200,121,65,0.40)', position: 'absolute', top: 0 }} />
         </div>
 
-        <div className="logo-frame-outer" style={styles.logoFrame}>
-           <div className="logo-ring-dashed" style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', border: '1px dashed rgba(200,121,65,0.25)', zIndex: 1 }} />
-           <img src="/images/icon.jpg?v=3" alt="RKL Trove Logo" className="logo-img-floating" style={{ height: '120px', width: '120px', objectFit: 'cover', borderRadius: '50%' }} />
+        <div style={{ position: 'relative', marginBottom: '32px' }}>
+           <img src="/images/icon.jpg?v=3" alt="RKL Trove Logo" style={{ height: '160px', width: '160px', objectFit: 'cover', borderRadius: '50%', boxShadow: '0 8px 32px rgba(44,26,14,0.15)' }} />
         </div>
 
         <div>
           <h1 style={styles.brandName}>RKL Trove</h1>
-          <div style={{ width: '60px', height: '2px', background: 'linear-gradient(90deg, transparent, #C87941, transparent)', margin: '10px auto 0 auto', borderRadius: '2px', opacity: mounted ? 1 : 0, animation: 'fadeIn 0.4s ease-out forwards', animationDelay: '550ms' }} />
+          <div style={{ width: '60px', height: '2px', background: 'linear-gradient(90deg, transparent, #C87941, transparent)', margin: '10px auto 0 auto', borderRadius: '2px', opacity: 1 }} />
         </div>
 
-        <div style={{ position: 'relative', marginTop: '16px', marginBottom: '40px', opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.5s ease-out forwards', animationDelay: '600ms' }}>
+        <div style={{ position: 'relative', marginTop: '16px', marginBottom: '40px', opacity: 1 }}>
           <span style={{ position: 'absolute', left: '-5px', top: '-10px', fontSize: '1.8rem', color: 'rgba(200,121,65,0.35)', fontFamily: "'Playfair Display', serif" }}>"</span>
           <p style={styles.tagline}>Handcrafted with love, crafted for you</p>
           <span style={{ position: 'absolute', right: '-5px', bottom: '-15px', fontSize: '1.8rem', color: 'rgba(200,121,65,0.35)', fontFamily: "'Playfair Display', serif" }}>"</span>
