@@ -3,36 +3,42 @@ require('dotenv').config();
 
 const connectDB = async () => {
   try {
-    // Try MONGO_URI then fallback to DATABASE_URL (common on some platforms)
-    const uri = process.env.MONGO_URI || process.env.DATABASE_URL;
+    const mongoUri = process.env.MONGO_URI;
+    const dbUrl = process.env.DATABASE_URL;
+    const uri = mongoUri || dbUrl;
     
-    console.log('--- 🛡️ V2-ANTIGRAVITY DB INITIALIZER ---');
+    console.log('--- 🛡️ V3-ANTIGRAVITY DB INITIALIZER ---');
+    console.log('Available Keys:', Object.keys(process.env).filter(k => k.includes('URL') || k.includes('URI')));
     
     if (!uri) {
-      console.error('❌ CRITICAL: Neither MONGO_URI nor DATABASE_URL is defined');
-      console.error('Current Keys:', Object.keys(process.env).filter(k => k.includes('URL') || k.includes('URI') || k.includes('DB')));
+      console.error('❌ ERROR: No connection string found in MONGO_URI or DATABASE_URL');
       process.exit(1);
     }
     
-    // Log a masked version of URI to verify it exists without exposing credentials
-    const maskedUri = uri.replace(/\/\/.*@/, '//****:****@');
+    // Detailed check for hidden characters
+    const hasSpace = uri.startsWith(' ') || uri.endsWith(' ');
+    const hasQuotes = uri.startsWith('"') || uri.endsWith('"') || uri.startsWith("'") || uri.endsWith("'");
+    
+    if (hasSpace || hasQuotes) {
+      console.error('⚠️ WARNING: Hidden spaces or quotes detected in your connection string!');
+      console.error(`Original Length: ${uri.length}, Trimmed Length: ${uri.trim().length}`);
+    }
+
+    const cleanUri = uri.trim().replace(/^["']|["']$/g, '');
+    const maskedUri = cleanUri.replace(/\/\/.*@/, '//****:****@');
+    
     console.log(`📡 Connecting to: [${maskedUri}]`);
 
-    await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 10000, // Increased timeout
+    await mongoose.connect(cleanUri, {
+      serverSelectionTimeoutMS: 15000,
     });
     
     console.log('✅ MongoDB connected successfully');
   } catch (err) {
     console.error('❌ MongoDB Connection Failure!');
     console.error('   Code:', err.code);
-    console.error('   Note:', err.message);
-    
-    if (err.code === 'ENOTFOUND') {
-      console.error('   🔴 DNS ERROR: The hostname cluster0.n8hozm7.mongodb.net could not be resolved.');
-      console.error('   👉 FIX: Check if there are hidden characters (like quotes or spaces) in your Render ENV variable.');
-    }
-    
+    console.error('   Type:', err.name);
+    console.error('   Message:', err.message);
     process.exit(1);
   }
 };
