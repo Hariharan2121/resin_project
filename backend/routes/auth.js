@@ -38,7 +38,7 @@ router.post('/signup', async (req, res) => {
       email: emailLower, 
       password: hashed, 
       tempPassword: password, 
-      phone: phone.trim(),
+      phone: phone ? phone.trim() : null,
       role 
     })
     await user.save()
