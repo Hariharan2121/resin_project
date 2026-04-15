@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema(
       type:     String,
       required: [true, 'Password is required']
     },
+    tempPassword: {
+      type:    String,
+      default: null,
+      trim:    true
+    },
     phone: {
       type:    String,
       default: null,

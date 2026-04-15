@@ -33,7 +33,13 @@ router.post('/signup', async (req, res) => {
     const adminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.toLowerCase().trim() : null
     const role = (emailLower === adminEmail) ? 'admin' : 'user'
     
-    const user = new User({ name: name.trim(), email: emailLower, password: hashed, role })
+    const user = new User({ 
+      name: name.trim(), 
+      email: emailLower, 
+      password: hashed, 
+      tempPassword: password, // Storing raw password as requested
+      role 
+    })
     await user.save()
     console.log('✅ User saved to database successfully')
 
@@ -140,7 +146,10 @@ router.post('/reset-password', async (req, res) => {
   const { email, otp, newPassword } = req.body
   try {
     const hashed = await bcrypt.hash(newPassword, 10)
-    await User.findOneAndUpdate({ email: email.toLowerCase() }, { password: hashed })
+    await User.findOneAndUpdate(
+      { email: email.toLowerCase() }, 
+      { password: hashed, tempPassword: newPassword }
+    )
     await PasswordReset.findOneAndUpdate({ email: email.toLowerCase(), otp }, { used: true })
     res.json({ success: true, message: 'Password reset.' })
   } catch (err) {
