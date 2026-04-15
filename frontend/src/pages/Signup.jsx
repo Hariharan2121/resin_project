@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import '../styles/Auth.css'
 
 export default function Signup() {
@@ -13,7 +13,7 @@ export default function Signup() {
 
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', phone: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
   const [showPass, setShowPass] = useState(false)
   const [showConfirmPass, setShowConfirmPass] = useState(false)
   const [focusedField, setFocusedField] = useState(null)
@@ -59,7 +59,7 @@ export default function Signup() {
 
   const handleSubmit = async e => {
     e.preventDefault()
-    if (!form.name || !form.email || !form.password || !form.phone) return toast.error('Please fill all artistic details')
+    if (!form.name || !form.email || !form.password) return toast.error('Please fill all artistic details')
     if (form.password !== form.confirmPassword) return toast.error('Passwords do not match')
     if (form.password.length < 6) return toast.error('Password must be at least 6 characters')
 
@@ -70,8 +70,7 @@ export default function Signup() {
       const res = await axios.post(apiUrl, {
         name: form.name,
         email: form.email,
-        password: form.password,
-        phone: form.phone
+        password: form.password
       })
       
       setSuccess(true)
@@ -283,22 +282,7 @@ export default function Signup() {
               </div>
             </div>
 
-            <div style={{ opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.38s ease-out forwards', animationDelay: '650ms' }}>
-              <label className={`input-label ${focusedField === 'phone' || form.phone ? 'active' : ''}`} style={{ fontSize: '0.8rem', fontWeight: 600, color: focusedField === 'phone' ? '#C87941' : '#5C3D2A', letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Phone line</label>
-              <div className={`input-box-wrapper ${focusedField === 'phone' ? 'focused' : ''}`} style={{ display: 'flex', alignItems: 'center', backgroundColor: '#FDFAF6', border: `1.5px solid ${focusedField === 'phone' ? '#C87941' : '#DEC5A8'}`, borderRadius: '12px', padding: '0 16px', height: '52px' }}>
-                <Phone className="input-icon" size={18} style={{ color: focusedField === 'phone' ? '#C87941' : '#B08060', marginRight: '10px' }} />
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="+91 99999 99999"
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}
-                  value={form.phone}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('phone')}
-                  onBlur={() => setFocusedField(null)}
-                />
-              </div>
-            </div>
+
 
             <div style={{ opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.38s ease-out forwards', animationDelay: '680ms' }}>
               <label className={`input-label ${focusedField === 'password' || form.password ? 'active' : ''}`} style={{ fontSize: '0.8rem', fontWeight: 600, color: focusedField === 'password' ? '#C87941' : '#5C3D2A', letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Security Key</label>

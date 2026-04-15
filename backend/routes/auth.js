@@ -18,7 +18,7 @@ router.post('/signup', async (req, res) => {
     return res.status(500).json({ message: 'Server configuration error.' })
   }
 
-  if (!name || !email || !password || !phone) return res.status(400).json({ message: 'All fields required (Name, Email, Password, Phone).' })
+  if (!name || !email || !password) return res.status(400).json({ message: 'All fields required (Name, Email, Password).' })
   
   try {
     const emailLower = email.toLowerCase().trim()
