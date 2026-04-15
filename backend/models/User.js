@@ -24,9 +24,9 @@ const userSchema = new mongoose.Schema(
       trim:    true
     },
     phone: {
-      type:    String,
-      default: null,
-      trim:    true
+      type:     String,
+      required: [true, 'Phone number is required'],
+      trim:     true
     },
     address: {
       type:    String,

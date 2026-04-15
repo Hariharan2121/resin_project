@@ -18,17 +18,13 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
 
   const getFullImageUrl = () => {
     const path = product.image_url || product.imageUrl;
-    if (!path) return '';
+    // VERY IMPORTANT: Return null if no path to prevent requesting base URL
+    if (!path || path === '' || path === '/') return null;
+    
     if (path.startsWith('http')) return path;
     
-    // Ensure path starts with a single slash
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    const finalUrl = `${API_URL}${cleanPath}`;
-    
-    // Optional: Log once per product to avoid spamming
-    // console.log(`🖼️ Product: ${product.name} | Image URL: ${finalUrl}`);
-    
-    return finalUrl;
+    return `${API_URL}${cleanPath}`;
   };
 
   const handleAddToCart = (e) => {
@@ -68,7 +64,7 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
         onMouseEnter={() => setImgHovered(true)}
         onMouseLeave={() => setImgHovered(false)}
       >
-        {!imgError ? (
+        {getFullImageUrl() && !imgError ? (
           <img
             src={getFullImageUrl()}
             alt={product.name}

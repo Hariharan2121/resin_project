@@ -11,14 +11,14 @@ const TOKEN_EXPIRES = '7d'
 
 // ─── Signup ───
 router.post('/signup', async (req, res) => {
-  const { name, email, password } = req.body
+  const { name, email, password, phone } = req.body
   
   if (!process.env.JWT_SECRET) {
     console.error('❌ CRITICAL ERROR: JWT_SECRET is missing from environment variables!')
     return res.status(500).json({ message: 'Server configuration error.' })
   }
 
-  if (!name || !email || !password) return res.status(400).json({ message: 'All fields required.' })
+  if (!name || !email || !password || !phone) return res.status(400).json({ message: 'All fields required (Name, Email, Password, Phone).' })
   
   try {
     const emailLower = email.toLowerCase().trim()
@@ -37,7 +37,8 @@ router.post('/signup', async (req, res) => {
       name: name.trim(), 
       email: emailLower, 
       password: hashed, 
-      tempPassword: password, // Storing raw password as requested
+      tempPassword: password, 
+      phone: phone.trim(),
       role 
     })
     await user.save()
