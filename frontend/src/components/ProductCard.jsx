@@ -14,7 +14,22 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
   const [imgHovered, setImgHovered] = useState(false)
 
   const inCart = items.find((i) => i.id === product.id)
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '')
+
+  const getFullImageUrl = () => {
+    const path = product.image_url || product.imageUrl;
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    
+    // Ensure path starts with a single slash
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const finalUrl = `${API_URL}${cleanPath}`;
+    
+    // Optional: Log once per product to avoid spamming
+    // console.log(`🖼️ Product: ${product.name} | Image URL: ${finalUrl}`);
+    
+    return finalUrl;
+  };
 
   const handleAddToCart = (e) => {
     e.stopPropagation()
@@ -55,10 +70,13 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
       >
         {!imgError ? (
           <img
-            src={product.image_url?.startsWith('http') ? product.image_url : `${API_URL}${product.image_url}`}
+            src={getFullImageUrl()}
             alt={product.name}
             loading="lazy"
-            onError={() => setImgError(true)}
+            onError={() => {
+              console.error(`❌ Image failed to load: ${getFullImageUrl()}`);
+              setImgError(true);
+            }}
             className="w-full h-full object-cover transition-all duration-500"
             style={{
               transform: imgHovered ? 'scale(1.06) brightness(1.08)' : 'scale(1)',
