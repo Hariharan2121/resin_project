@@ -21,7 +21,7 @@ router.get('/', authMiddleware, async (req, res) => {
           price:       parseFloat(p.price) || 0,
           image_url:   p.image_url   || '',
           description: p.description || '',
-          is_available: p.is_available !== undefined ? p.is_available : true,
+          is_available: p.is_available === false ? false : true,
           createdAt:   p.createdAt
         }
       })
