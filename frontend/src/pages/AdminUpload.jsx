@@ -110,20 +110,23 @@ const AdminUpload = () => {
             { 
                 name: 'Resin Coaster Set', 
                 price: 499.00, 
-                image_url: 'https://placehold.co/400x300?text=Coaster', 
-                description: 'Beautiful handcrafted resin coasters' 
+                image_url: '/images/product_1.jpg', 
+                description: 'Beautiful handcrafted resin coasters',
+                is_available: 'true'
             },
             { 
                 name: 'Resin Keychain', 
                 price: 199.00, 
-                image_url: 'https://placehold.co/400x300?text=Keychain', 
-                description: 'Cute personalized resin keychains' 
+                image_url: '/images/product_2.jpg', 
+                description: 'Cute personalized resin keychains',
+                is_available: 'true'
             },
             { 
                 name: 'Resin Tray', 
                 price: 899.00, 
-                image_url: '', 
-                description: 'Elegant resin tray for home decor' 
+                image_url: '/images/product_3.jpg', 
+                description: 'Elegant resin tray for home decor',
+                is_available: 'false'
             }
         ];
 
@@ -221,6 +224,12 @@ const AdminUpload = () => {
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#9C7B65]">Optional</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Text</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Beautiful resin...</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">is_available</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#9C7B65]">Optional</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Boolean</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">true / false / yes / no / 1 / 0</td>
                                 </tr>
                             </tbody>
                         </table>

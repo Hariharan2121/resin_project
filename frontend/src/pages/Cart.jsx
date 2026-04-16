@@ -22,6 +22,15 @@ export default function Cart() {
 
   const handleConfirmOrder = async () => {
     if (items.length === 0) return toast.error('Your selection is empty!')
+    
+    // Check for out-of-stock items
+    const outOfStockItems = items.filter(i => i.is_available === false);
+    if (outOfStockItems.length > 0) {
+      return toast.error(`Please remove out-of-stock items (${outOfStockItems.map(i => i.name).join(', ')}) before checkout.`, {
+        style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
+      });
+    }
+
     setLoading(true)
     try {
       await axios.post(
@@ -143,7 +152,11 @@ export default function Cart() {
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
                       <span className="text-[#C87941] font-bold text-lg">{fmt(item.price)}</span>
                       <div className="hidden sm:block h-4 w-[1px] bg-[#EDD9C0]" />
-                      <span className="text-[10px] text-[#9C7B65] uppercase tracking-widest font-bold bg-[#FBF5EE] px-2 py-1 rounded">Original Art</span>
+                      {item.is_available === false ? (
+                        <span className="text-[10px] text-white uppercase tracking-widest font-bold bg-[#E74C3C] px-3 py-1 rounded-full shadow-sm animate-pulse">Out of Stock</span>
+                      ) : (
+                        <span className="text-[10px] text-[#9C7B65] uppercase tracking-widest font-bold bg-[#FBF5EE] px-2 py-1 rounded">Original Art</span>
+                      )}
                     </div>
                   </div>
 
@@ -233,11 +246,11 @@ export default function Cart() {
 
                 <button
                   onClick={handleConfirmOrder}
-                  disabled={loading}
+                  disabled={loading || items.some(i => i.is_available === false)}
                   className={`
                     w-full mt-10 p-5 rounded-[18px] text-lg font-bold shadow-lg transition-all flex items-center justify-center gap-3
-                    ${loading 
-                      ? 'bg-[#E5D5C5] text-white cursor-not-allowed' 
+                    ${loading || items.some(i => i.is_available === false)
+                      ? 'bg-[#E5D5C5] text-white cursor-not-allowed opacity-80' 
                       : 'bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white hover:shadow-[0_12px_24px_rgba(200,121,65,0.3)] hover:-translate-y-0.5 active:translate-y-0'}
                   `}
                 >

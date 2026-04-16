@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ShoppingCart, Heart, Palette, Truck, Package, RefreshCw,
-  Copy, Home, ChevronRight, Plus, Minus, Share2, Star
+  Copy, Home, ChevronRight, Plus, Minus, Share2, Star, XCircle, Info
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useCart } from '../context/CartContext'
@@ -77,8 +77,41 @@ export default function ProductDetail() {
     ? (product.image_url?.startsWith('http') ? product.image_url : `${API_URL}${product.image_url}`)
     : ''
 
-  const handleAddToCart = () => {
+  const isAvailable = product?.is_available !== false;
+
+  const handleAddToCart = async () => {
     if (!product) return
+    if (!isAvailable) {
+      if (!user) {
+        toast.error('Currently out of stock. Login to add to wishlist!', {
+          style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
+        });
+        navigate('/login');
+        return;
+      }
+
+      if (isFavourite) {
+        toast.error('This product is out of stock and already in your wishlist.', {
+          style: { background: '#FEF9F3', color: '#2C1810', border: '1px solid #C87941' }
+        });
+        return;
+      }
+
+      setFavLoading(true);
+      try {
+        await addFavourite(product.id);
+        setIsFavourite(true);
+        toast.success(`"${product.name}" added to your wishlist!`, {
+          icon: '💖',
+          style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+        });
+      } catch (err) {
+        toast.error('Failed to update wishlist.');
+      } finally {
+        setFavLoading(false);
+      }
+      return;
+    }
     const existing = items.find(i => i.id === product.id)
     if (existing) {
       updateQty(product.id, existing.quantity + quantity)
@@ -205,6 +238,10 @@ export default function ProductDetail() {
           from { opacity: 0; transform: translateX(30px); }
           to { opacity: 1; transform: translateX(0); }
         }
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.75); }
+        }
       `}</style>
       <Navbar />
 
@@ -306,11 +343,23 @@ export default function ProductDetail() {
             transform: mounted ? 'translateX(0)' : 'translateX(30px)',
             transition: 'opacity 0.5s ease 150ms, transform 0.5s ease 150ms'
           }}>
-            {/* Category tag */}
-            <div style={{ ...fadeIn(200), display: 'inline-block' }}>
+            {/* Category tag & Availability */}
+            <div style={{ ...fadeIn(200), display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ background: '#FEF0E3', color: '#C87941', border: '1px solid rgba(200,121,65,0.25)', fontSize: '0.75rem', fontWeight: 600, padding: '5px 14px', borderRadius: '20px' }}>
                 Resin Art
               </span>
+              
+              {isAvailable ? (
+                <div style={{ background: '#E8F8F0', border: '1.5px solid #27AE60', color: '#1E8449', borderRadius: '20px', padding: '5px 14px', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '6px', height: '6px', background: '#27AE60', borderRadius: '50%', animation: 'pulseDot 2s ease-in-out infinite' }} />
+                  In Stock & Available
+                </div>
+              ) : (
+                <div style={{ background: '#FDF0EF', border: '1.5px solid #E74C3C', color: '#C0392B', borderRadius: '20px', padding: '5px 14px', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <XCircle size={12} />
+                  Currently Out of Stock
+                </div>
+              )}
             </div>
 
             {/* Product name */}
@@ -364,7 +413,7 @@ export default function ProductDetail() {
             {/* Quantity */}
             <div style={fadeIn(660)}>
               <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: '#9C7B65', textTransform: 'uppercase', marginBottom: '12px' }}>Quantity</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0', opacity: isAvailable ? 1 : 0.5, pointerEvents: isAvailable ? 'auto' : 'none' }}>
                 <button
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
                   style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1.5px solid #DEC5A8', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', color: '#7A5542' }}
@@ -392,35 +441,57 @@ export default function ProductDetail() {
                 onClick={handleAddToCart}
                 style={{
                   flex: 1, minWidth: isMobile ? '100%' : 'auto', height: '52px', borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #C87941, #A0622E)',
-                  color: 'white', border: 'none', fontSize: '1rem', fontWeight: 600,
+                  background: isAvailable 
+                    ? 'linear-gradient(135deg, #C87941, #A0622E)' 
+                    : '#FEF0E3',
+                  color: isAvailable ? 'white' : '#C87941', 
+                  border: isAvailable ? 'none' : '2.5px solid #C87941', 
+                  fontSize: '1rem', fontWeight: 700,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                   cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-                  boxShadow: '0 4px 20px rgba(200,121,65,0.35)',
-                  transition: 'all 0.25s ease'
+                  boxShadow: isAvailable ? '0 4px 20px rgba(200,121,65,0.35)' : 'none',
+                  transition: 'all 0.25s ease',
+                  opacity: 1
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(200,121,65,0.45)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(200,121,65,0.35)' }}
+                onMouseEnter={(e) => { 
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  if (isAvailable) {
+                    e.currentTarget.style.boxShadow = '0 8px 28px rgba(200,121,65,0.45)';
+                  } else {
+                    e.currentTarget.style.background = '#FEEBC8';
+                  }
+                }}
+                onMouseLeave={(e) => { 
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  if (isAvailable) {
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(200,121,65,0.35)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #C87941, #A0622E)';
+                  } else {
+                    e.currentTarget.style.background = '#FEF0E3';
+                  }
+                }}
               >
-                <ShoppingCart size={18} /> Add to Cart
+                {isAvailable ? <><ShoppingCart size={18} /> Add to Cart</> : <><Heart size={18} /> Add to Wishlist</>}
               </button>
 
               {/* Customize */}
-              <button
-                onClick={() => navigate(`/customize?product=${product.id}&name=${encodeURIComponent(product.name)}`)}
-                style={{
-                  flex: 1, minWidth: isMobile ? 'calc(50% - 6px)' : 'auto', height: '52px', borderRadius: '14px',
-                  background: 'white', border: '2px solid #C87941', color: '#C87941',
-                  fontSize: '1rem', fontWeight: 600,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-                  transition: 'all 0.25s ease'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF0E3'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.transform = 'translateY(0)' }}
-              >
-                <Palette size={18} /> Customize This
-              </button>
+              <div style={{ flex: 1, position: 'relative' }} title={!isAvailable ? "Request a custom version" : ""}>
+                <button
+                  onClick={() => navigate(`/customize?product=${product.id}&name=${encodeURIComponent(product.name)}`)}
+                  style={{
+                    width: '100%', height: '52px', borderRadius: '14px',
+                    background: 'white', border: '2px solid #C87941', color: '#C87941',
+                    fontSize: '1rem', fontWeight: 600,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                    transition: 'all 0.25s ease'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF0E3'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.transform = 'translateY(0)' }}
+                >
+                  <Palette size={18} /> Customize This
+                </button>
+              </div>
 
               {/* Heart */}
               <button
@@ -439,6 +510,19 @@ export default function ProductDetail() {
                 <Heart size={20} fill={isFavourite ? '#E74C3C' : 'none'} />
               </button>
             </div>
+
+            {/* Unavailable Info Box */}
+            {!isAvailable && (
+              <div style={{ ...fadeIn(750), background: '#FEF9F3', border: '1px solid #EDD9C0', borderLeft: '4px solid #E67E22', borderRadius: '10px', padding: '14px 18px', display: 'flex', gap: '12px', marginTop: '20px' }}>
+                <Info size={20} style={{ color: '#E67E22', flexShrink: 0 }} />
+                <div>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#5C3D2A', marginBottom: '4px' }}>Currently Unavailable</p>
+                  <p style={{ fontSize: '0.82rem', color: '#7A5542', lineHeight: 1.5 }}>
+                    This product is out of stock right now. You can still request a custom version or add it to your favourites to know when it's back.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Share */}
             <div style={{ ...fadeIn(780), display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>

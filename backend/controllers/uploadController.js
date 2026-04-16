@@ -66,6 +66,7 @@ const uploadProducts = async (req, res) => {
     const priceIdx       = headers.indexOf('price');
     const imageUrlIdx    = headers.indexOf('image_url');
     const descriptionIdx = headers.indexOf('description');
+    const isAvailableIdx = headers.indexOf('is_available');
 
     if (nameIdx === -1 || priceIdx === -1) {
       return res.status(400).json({
@@ -101,7 +102,13 @@ const uploadProducts = async (req, res) => {
         ? String(row[descriptionIdx] || '').trim() || null
         : null;
 
-      products.push({ name, price, image_url, description });
+      // PARSE IS_AVAILABLE
+      const isAvailableRaw = isAvailableIdx !== -1
+        ? String(row[isAvailableIdx] || '').trim().toLowerCase()
+        : '';
+      const is_available = !['false', 'no', '0', 'unavailable'].includes(isAvailableRaw);
+
+      products.push({ name, price, image_url, description, is_available });
     }
 
     if (products.length === 0 && errors.length === 0) {
@@ -117,7 +124,13 @@ const uploadProducts = async (req, res) => {
         const exists = await Product.findOne({ name: product.name });
         await Product.findOneAndUpdate(
           { name: product.name },
-          { name: product.name, price: product.price, image_url: product.image_url, description: product.description },
+          { 
+            name: product.name, 
+            price: product.price, 
+            image_url: product.image_url, 
+            description: product.description,
+            is_available: product.is_available
+          },
           { upsert: true, new: true, runValidators: true }
         );
         if (exists) {

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { ShoppingCart, Heart, Sparkles, Check, Eye } from 'lucide-react'
+import { ShoppingCart, Heart, Sparkles, Check, Eye, XCircle } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
-export default function ProductCard({ product, isFavourite = false, onToggleFavourite, onHover }) {
+export default function ProductCard({ product, isFavourite = false, onToggleFavourite, onHover, showAvailability = false }) {
   const { addItem, items } = useCart()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -15,20 +15,47 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
 
   const inCart = items.find((i) => i.id === product.id)
   const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '')
+  
+  // Handle availability
+  const isAvailable = product.is_available !== false; // Default true
 
   const getFullImageUrl = () => {
     const path = product.image_url || product.imageUrl;
-    // VERY IMPORTANT: Return null if no path to prevent requesting base URL
     if (!path || path === '' || path === '/') return null;
-    
     if (path.startsWith('http')) return path;
-    
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     return `${API_URL}${cleanPath}`;
   };
 
   const handleAddToCart = (e) => {
     e.stopPropagation()
+    if (!isAvailable) {
+      if (!user) {
+        toast.error('Currently out of stock. Login to add to wishlist!', {
+          style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
+        });
+        navigate('/login');
+        return;
+      }
+      
+      // If already in wishlist, don't do anything extra
+      if (isFavourite) {
+        toast.error('This product is out of stock and already in your wishlist.', {
+          style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
+        });
+        return;
+      }
+
+      // Add to wishlist if not already there
+      if (onToggleFavourite) {
+        onToggleFavourite(product.id);
+        toast.success(`"${product.name}" moved to your wishlist!`, {
+          icon: '💖',
+          style: { background: '#FEF9F3', color: '#2C1810', border: '1px solid #C87941' }
+        });
+      }
+      return;
+    }
     addItem(product)
     setAdded(true)
     toast.success(`"${product.name}" added to cart!`, {
@@ -54,9 +81,24 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
 
   return (
     <article
-      className="group bg-white rounded-[20px] overflow-hidden border border-[#F0E0CF] shadow-[0_2px_12px_rgba(44,26,14,0.06)] transition-all duration-300 hover:-translate-y-[6px] hover:shadow-[0_12px_36px_rgba(200,121,65,0.16)] hover:border-[#DEC5A8] flex flex-col h-full"
+      className={`group bg-white rounded-[20px] overflow-hidden border border-[#F0E0CF] shadow-[0_2px_12px_rgba(44,26,14,0.06)] transition-all duration-300 flex flex-col h-full ${
+        isAvailable 
+          ? 'hover:-translate-y-[6px] hover:shadow-[0_12px_36px_rgba(200,121,65,0.16)] hover:border-[#DEC5A8]' 
+          : 'opacity-95 hover:-translate-y-[3px] hover:shadow-[0_4px_12px_rgba(44,26,14,0.1)] hover:border-[#EDD9C0]'
+      }`}
       onMouseEnter={() => onHover && onHover(product)}
     >
+      <style>{`
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.75); }
+        }
+        @keyframes badgeFadeIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
       {/* Image Container */}
       <div
         className="relative aspect-square overflow-hidden bg-[#FBF5EE] flex-shrink-0 cursor-pointer"
@@ -69,14 +111,12 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
             src={getFullImageUrl()}
             alt={product.name}
             loading="lazy"
-            onError={() => {
-              console.error(`❌ Image failed to load: ${getFullImageUrl()}`);
-              setImgError(true);
-            }}
+            onError={() => setImgError(true)}
             className="w-full h-full object-cover transition-all duration-500"
             style={{
               transform: imgHovered ? 'scale(1.06) brightness(1.08)' : 'scale(1)',
-              filter: imgHovered ? 'brightness(1.06)' : 'brightness(1)'
+              filter: imgHovered ? 'brightness(1.06)' : 'brightness(1)',
+              opacity: isAvailable ? 1 : 0.8
             }}
           />
         ) : (
@@ -85,35 +125,33 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
           </div>
         )}
 
-        {/* "View Details" overlay */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          background: 'rgba(44,26,14,0.75)',
-          color: 'white',
-          fontSize: '0.8rem',
-          fontFamily: "'DM Sans', sans-serif",
-          fontWeight: 600,
-          padding: '10px',
-          textAlign: 'center',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-          transform: imgHovered ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 0.3s ease',
-          letterSpacing: '0.04em'
-        }}>
-          <Eye size={14} /> View Details
-        </div>
-
-        {/* Floating Badge */}
-        <div className="absolute top-3 left-3">
-          <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-[#C87941] uppercase tracking-wider flex items-center gap-1 shadow-sm border border-[#F0E0CF]">
-            <Sparkles size={10} /> Handmade
+        {/* Status Badge */}
+        {(showAvailability || !isAvailable) && (
+          <div 
+            className="absolute top-3 left-3 z-[2]"
+            style={{ animation: 'badgeFadeIn 300ms ease-out forwards' }}
+          >
+            {isAvailable ? (
+              <div className="bg-gradient-to-br from-[#27AE60] to-[#1E8449] text-white text-[0.72rem] font-[700] tracking-wider py-1.5 px-3 rounded-full flex items-center gap-1.5 shadow-[0_2px_8px_rgba(39,174,96,0.35)]">
+                <div 
+                  className="w-1.5 h-1.5 bg-white rounded-full" 
+                  style={{ animation: 'pulseDot 2s ease-in-out infinite' }}
+                />
+                Available
+              </div>
+            ) : (
+              <div className="bg-gradient-to-br from-[#E74C3C] to-[#C0392B] text-white text-[0.72rem] font-[700] tracking-wider py-1.5 px-3 rounded-full flex items-center gap-1.5 shadow-[0_2px_8px_rgba(231,76,60,0.35)]">
+                <XCircle size={12} />
+                Out of Stock
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         {/* Favourites Button */}
         <button
           onClick={handleFavouriteClick}
-          className={`absolute top-3 right-3 w-10 h-10 rounded-[10px] border-[1.5px] flex items-center justify-center transition-all duration-300 shadow-sm ${
+          className={`absolute top-3 right-3 w-10 h-10 rounded-[10px] border-[1.5px] z-[2] flex items-center justify-center transition-all duration-300 shadow-sm ${
             isFavourite
               ? 'bg-[#FBF5EE] border-[#C87941] text-[#E74C3C]'
               : 'bg-white border-[#DEC5A8] text-[#B08060] hover:border-[#C87941] hover:bg-[#FEF9F3]'
@@ -147,15 +185,19 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
 
           <button
             onClick={handleAddToCart}
-            disabled={added}
-            className={`flex-1 ml-4 h-11 rounded-[10px] flex items-center justify-center gap-2 font-bold text-sm tracking-wide transition-all duration-300 shadow-md transform ${
-              added
-                ? 'bg-[#27AE60] text-white'
-                : 'bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white hover:shadow-[0_4px_16px_rgba(200,121,65,0.4)] active:scale-95'
+            disabled={added || !isAvailable}
+            className={`flex-1 ml-4 h-11 rounded-[10px] flex items-center justify-center gap-2 font-bold text-sm tracking-wide transition-all duration-300 shadow-md transform px-2 ${
+              !isAvailable 
+                ? 'bg-[#E8D5BE] text-[#9C7B65] border-1.5 border-[#DEC5A8] cursor-not-allowed opacity-80'
+                : added
+                  ? 'bg-[#27AE60] text-white active:scale-95'
+                  : 'bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white hover:shadow-[0_4px_16px_rgba(200,121,65,0.4)] active:scale-95'
             }`}
           >
             {added ? (
               <><Check size={16} /><span>✓ Added</span></>
+            ) : !isAvailable ? (
+              <><XCircle size={16} /><span>Out of Stock</span></>
             ) : (
               <><ShoppingCart size={16} /><span>Add to Cart</span></>
             )}

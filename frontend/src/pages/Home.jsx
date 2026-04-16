@@ -22,6 +22,7 @@ export default function Home() {
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [sortBy, setSortBy] = useState('Default')
   const [priceFilter, setPriceFilter] = useState('All Prices')
+  const [availabilityFilter, setAvailabilityFilter] = useState('All Items')
 
   // Interaction State
   const [favouriteIds, setFavouriteIds] = useState(new Set())
@@ -124,7 +125,13 @@ export default function Home() {
     else if (priceFilter === '₹1000 - ₹2000') matchesPrice = price >= 1000 && price <= 2000
     else if (priceFilter === 'Above ₹2000') matchesPrice = price > 2000
 
-    return matchesSearch && matchesPrice
+    // Availability filter
+    const isAvailable = p.is_available !== false;
+    let matchesAvailability = true;
+    if (availabilityFilter === 'Available') matchesAvailability = isAvailable;
+    else if (availabilityFilter === 'Out of Stock') matchesAvailability = !isAvailable;
+
+    return matchesSearch && matchesPrice && matchesAvailability
   }).sort((a, b) => {
     if (sortBy === 'Price: Low to High') return a.price - b.price
     if (sortBy === 'Price: High to Low') return b.price - a.price
@@ -229,6 +236,31 @@ export default function Home() {
         {/* TASK 3 — LEFT SIDEBAR (Desktop) */}
         <aside className="hidden lg:block w-[220px] flex-shrink-0">
           <div className="sticky top-28 space-y-8">
+            <section>
+              <h3 className="text-[0.75rem] font-bold text-[#9C7B65] tracking-[0.08em] uppercase mb-4">Availability</h3>
+              <div className="space-y-3">
+                {['All Items', 'Available', 'Out of Stock'].map(status => (
+                  <label key={status} className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative flex items-center justify-center">
+                      <input
+                        type="radio"
+                        name="availability"
+                        checked={availabilityFilter === status}
+                        onChange={() => setAvailabilityFilter(status)}
+                        className="peer appearance-none w-4 h-4 rounded-full border-[1.5px] border-[#DEC5A8] checked:border-[#C87941] transition-all"
+                      />
+                      <div className="absolute w-2 h-2 rounded-full bg-[#C87941] opacity-0 peer-checked:opacity-100 transition-opacity" />
+                    </div>
+                    <span className={`text-[0.875rem] transition-colors ${availabilityFilter === status ? 'text-[#C87941] font-bold' : 'text-[#3D2B1A] group-hover:text-[#C87941]'}`}>
+                      {status}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </section>
+
+            <div className="h-[1px] bg-[#EDD9C0]" />
+
             <section>
               <h3 className="text-[0.75rem] font-bold text-[#9C7B65] tracking-[0.08em] uppercase mb-4">Price Range</h3>
               <div className="space-y-3">
@@ -348,7 +380,7 @@ export default function Home() {
               <h3 className="font-serif text-2xl font-bold text-[#5C3D2A] mb-2">No products found for "{search}"</h3>
               <p className="text-[#9C7B65] mb-8">Try adjusting your filters or search keywords.</p>
               <button
-                onClick={() => { setSearch(''); setPriceFilter('All Prices'); }}
+                onClick={() => { setSearch(''); setPriceFilter('All Prices'); setAvailabilityFilter('All Items'); }}
                 className="px-8 py-3 rounded-full border-2 border-[#C87941] text-[#C87941] font-bold hover:bg-[#C87941] hover:text-white transition-all"
               >
                 Clear All Filters
