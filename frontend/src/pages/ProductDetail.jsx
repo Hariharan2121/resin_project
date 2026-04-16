@@ -30,6 +30,7 @@ export default function ProductDetail() {
 
   const [product, setProduct] = useState(null)
   const [allProducts, setAllProducts] = useState([])
+  const [favouriteIds, setFavouriteIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [quantity, setQuantity] = useState(1)
@@ -67,11 +68,47 @@ export default function ProductDetail() {
       setProduct(prod)
       setAllProducts(prods || [])
       const favData = favRes?.data?.data || favRes?.data || []
-      setIsFavourite(Array.isArray(favData) && favData.some(f => f.id === prod.id || String(f.id) === String(id)))
+      const ids = new Set(favData.map(f => Number(f.id)))
+      setFavouriteIds(ids)
+      setIsFavourite(ids.has(Number(prod.id)))
       setLoading(false)
       setTimeout(() => setMounted(true), 50)
+    }).catch(err => {
+      console.error('Fetch detail error:', err)
+      setLoading(false)
     })
-  }, [id])
+  }, [id, user])
+
+  const toggleFavourite = async (prodId) => {
+    if (!user) { toast.error('Please login to save favourites.'); navigate('/login'); return }
+    const productId = Number(prodId)
+    const wasFav = favouriteIds.has(productId)
+    
+    // UI update
+    setFavouriteIds(prev => {
+      const next = new Set(prev)
+      wasFav ? next.delete(productId) : next.add(productId)
+      return next
+    })
+    if (productId === Number(product?.id)) setIsFavourite(!wasFav)
+
+    try {
+      if (wasFav) {
+        await removeFavourite(productId)
+      } else {
+        await addFavourite(productId)
+      }
+    } catch (err) {
+      // Rollback
+      setFavouriteIds(prev => {
+        const next = new Set(prev)
+        wasFav ? next.add(productId) : next.delete(productId)
+        return next
+      })
+      if (productId === Number(product?.id)) setIsFavourite(wasFav)
+      toast.error('Failed to update favourites.')
+    }
+  }
 
   const imgSrc = product
     ? (product.image_url?.startsWith('http') ? product.image_url : `${API_URL}${product.image_url}`)
@@ -568,8 +605,12 @@ export default function ProductDetail() {
               paddingBottom: isMobile ? '12px' : 0
             }}>
               {related.map(p => (
-                <div key={p.id} style={{ minWidth: isMobile ? '200px' : undefined }}>
-                  <ProductCard product={p} />
+                <div key={p.id} style={{ minWidth: isMobile ? '240px' : undefined }}>
+                  <ProductCard 
+                    product={p} 
+                    isFavourite={favouriteIds.has(Number(p.id))}
+                    onToggleFavourite={toggleFavourite}
+                  />
                 </div>
               ))}
             </div>

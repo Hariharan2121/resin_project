@@ -114,6 +114,7 @@ export default function Favourites() {
                 product={product}
                 isFavourite={true}
                 onToggleFavourite={toggleFavourite}
+                showAvailability={true}
               />
             ))}
           </div>

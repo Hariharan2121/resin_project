@@ -185,19 +185,19 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
 
           <button
             onClick={handleAddToCart}
-            disabled={added || !isAvailable}
-            className={`flex-1 ml-4 h-11 rounded-[10px] flex items-center justify-center gap-2 font-bold text-sm tracking-wide transition-all duration-300 shadow-md transform px-2 ${
+            disabled={added}
+            className={`flex-1 ml-3 h-11 rounded-[12px] flex items-center justify-center gap-2 font-bold text-[0.82rem] tracking-wide transition-all duration-300 shadow-sm px-3 ${
               !isAvailable 
-                ? 'bg-[#E8D5BE] text-[#9C7B65] border-1.5 border-[#DEC5A8] cursor-not-allowed opacity-80'
+                ? 'bg-[#FEF0E3] text-[#C87941] border border-[#C87941] hover:bg-[#FEEBC8] active:scale-95'
                 : added
                   ? 'bg-[#27AE60] text-white active:scale-95'
-                  : 'bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white hover:shadow-[0_4px_16px_rgba(200,121,65,0.4)] active:scale-95'
+                  : 'bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white hover:shadow-[0_4px_16px_rgba(200,121,65,0.4)] hover:scale-[1.02] active:scale-95'
             }`}
           >
             {added ? (
-              <><Check size={16} /><span>✓ Added</span></>
+              <><Check size={16} /><span>Added</span></>
             ) : !isAvailable ? (
-              <><XCircle size={16} /><span>Out of Stock</span></>
+              <><Heart size={14} className="fill-current" /><span>Wishlist</span></>
             ) : (
               <><ShoppingCart size={16} /><span>Add to Cart</span></>
             )}
