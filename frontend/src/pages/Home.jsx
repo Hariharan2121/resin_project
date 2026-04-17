@@ -5,7 +5,7 @@ import ProductCard from '../components/ProductCard'
 import {
   Search, X, Loader2, AlertCircle,
   MessageCircle, Star, Palette, Package, Heart,
-  ArrowRight, Filter, ChevronDown, LayoutGrid
+  ArrowRight, Filter, ChevronDown, LayoutGrid, Sparkles
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { getFavourites, addFavourite, removeFavourite, getProducts } from '../services/api'
@@ -56,18 +56,18 @@ export default function Home() {
     fetchProducts();
   }, [])
 
-  // Fetch favourites if logged in
+  // Fetch favourites — server if logged in, localStorage if guest
   useEffect(() => {
     if (!user) {
-      setFavouriteIds(new Set());
+      // Load guest favourites from localStorage
+      const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]');
+      setFavouriteIds(new Set(guestFavs.map(Number)));
       return;
     }
     const fetchFavs = async () => {
       try {
         const res = await getFavourites();
-        // Force IDs to Numbers for consistency
         const ids = new Set((res.data.data || []).map((p) => Number(p.id)));
-        console.log('✅ Synchronized Favourites State:', Array.from(ids));
         setFavouriteIds(ids);
       } catch (err) {
         console.error('❌ Failed to fetch favourites:', err);
@@ -80,31 +80,41 @@ export default function Home() {
     const productId = Number(prodId);
     const isFav = favouriteIds.has(productId);
 
-    console.log(`✨ Heart Click: Product ${productId} | Currently Favourite: ${isFav}`);
-
     setFavouriteIds((prev) => {
       const next = new Set(prev)
       isFav ? next.delete(productId) : next.add(productId)
       return next
     })
+
+    if (!user) {
+      // Guest: sync to localStorage
+      const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]');
+      if (isFav) {
+        const updated = guestFavs.filter(id => id !== String(productId));
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(updated));
+      } else {
+        guestFavs.push(String(productId));
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(guestFavs));
+      }
+      return;
+    }
+
+    // Logged in: sync to server
     try {
       if (isFav) {
         await removeFavourite(productId);
-        console.log('🗑️ Removed from backend.');
       } else {
         await addFavourite(productId);
-        console.log('💖 Added to backend.');
       }
     } catch (err) {
       console.error('❌ Backend sync failed:', err);
-      // Rollback
       setFavouriteIds((prev) => {
         const next = new Set(prev)
         isFav ? next.add(productId) : next.delete(productId)
         return next
       })
     }
-  }, [favouriteIds])
+  }, [favouriteIds, user])
 
   const handleProductHover = (product) => {
     setRecentlyViewed(prev => {
@@ -182,6 +192,31 @@ export default function Home() {
               <Palette size={18} /> Design Studio
             </button>
           </div>
+
+          {/* Join nudge strip — only for guests */}
+          {!user && (
+            <div style={{
+              background: 'rgba(200,121,65,0.08)',
+              border: '1px solid rgba(200,121,65,0.15)',
+              borderRadius: '12px',
+              padding: '12px 20px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              marginTop: '16px', maxWidth: '500px', margin: '16px auto 0'
+            }}>
+              <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '0.82rem', color: '#5C3D2A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Sparkles size={15} color="#C87941" />
+                Sign up to save favourites and track your orders
+              </span>
+              <span
+                style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '0.82rem', fontWeight: 600, color: '#C87941', cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: '12px' }}
+                onClick={() => navigate('/signup')}
+                onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+              >
+                Join Free →
+              </span>
+            </div>
+          )}
         </div>
 
         {/* TASK 1 — CINEMATIC SEARCH BAR */}

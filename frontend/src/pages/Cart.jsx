@@ -5,45 +5,43 @@ import toast from 'react-hot-toast'
 import { 
   Minus, Plus, Trash2, ShoppingBag, ArrowLeft, 
   Loader2, CheckCircle, Sparkles, CreditCard,
-  ShieldCheck, Truck, Package 
+  ShieldCheck, Truck, Package, Info
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import AuthModal from '../components/AuthModal'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 export default function Cart() {
   const { items, removeItem, updateQty, clearCart, totalPrice } = useCart()
   const { user, token } = useAuth()
   const [loading, setLoading] = useState(false)
   const [ordered, setOrdered] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const fmt = (n) =>
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 
-  const handleConfirmOrder = async () => {
-    if (items.length === 0) return toast.error('Your selection is empty!')
-    
-    // Check for out-of-stock items
-    const outOfStockItems = items.filter(i => i.is_available === false);
-    if (outOfStockItems.length > 0) {
-      return toast.error(`Please remove out-of-stock items (${outOfStockItems.map(i => i.name).join(', ')}) before checkout.`, {
-        style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
-      });
-    }
-
+  // ─── Place order (always called after confirming auth) ───────────────────
+  const placeOrder = async () => {
     setLoading(true)
     try {
+      const currentUser = user || JSON.parse(localStorage.getItem('rkl_user') || '{}')
+      const currentToken = token || localStorage.getItem('rkl_token')
+
       await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/order`,
+        `${API_URL}/api/order`,
         {
           userDetails: {
-            name: user.name,
-            email: user.email
+            name: currentUser.name,
+            email: currentUser.email
           },
           cart: items.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
           total: totalPrice,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${currentToken}` } }
       )
       setOrdered(true)
       clearCart()
@@ -58,7 +56,40 @@ export default function Cart() {
     }
   }
 
-  // --- SUCCESS SCREEN ---
+  // ─── Called after AuthModal completes login/signup ───────────────────────
+  const handleAuthSuccessAndOrder = async () => {
+    // Short tick so AuthContext state has settled from login() call
+    await placeOrder()
+  }
+
+  // ─── Confirm Order button handler ────────────────────────────────────────
+  const handleConfirmOrder = async () => {
+    if (items.length === 0) return toast.error('Your cart is empty!')
+
+    // Check for out-of-stock items
+    const outOfStockItems = items.filter(i => i.is_available === false)
+    if (outOfStockItems.length > 0) {
+      return toast.error(
+        `Please remove out-of-stock items (${outOfStockItems.map(i => i.name).join(', ')}) before checkout.`,
+        { style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' } }
+      )
+    }
+
+    // Check auth
+    const currentToken = token || localStorage.getItem('rkl_token')
+    if (!currentToken) {
+      // Not logged in — open auth modal instead of redirecting
+      setShowAuthModal(true)
+      return
+    }
+
+    // Logged in — place order directly
+    await placeOrder()
+  }
+
+  // ─── Success screen ───────────────────────────────────────────────────────
+  const displayUser = user || JSON.parse(localStorage.getItem('rkl_user') || '{}')
+
   if (ordered) {
     return (
       <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans overflow-hidden">
@@ -72,7 +103,7 @@ export default function Cart() {
           </div>
           <h2 className="text-5xl font-serif font-bold text-[#2C1810] mb-6">Treasures Secured</h2>
           <p className="text-[#7A5542] text-lg leading-relaxed mb-10 italic max-w-sm mx-auto">
-            Thank you, <span className="text-[#C87941] font-bold">{user.name}</span>. Your unique curation is now part of the RKL Trove. We will contact <span className="text-[#2C1810] font-bold">{user.email}</span> shortly.
+            Thank you, <span className="text-[#C87941] font-bold">{displayUser.name}</span>. Your unique curation is now part of the RKL Trove. We will contact <span className="text-[#2C1810] font-bold">{displayUser.email}</span> shortly.
           </p>
           <div className="space-y-4">
             <Link to="/" className="inline-flex items-center justify-center gap-3 bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white px-12 py-4 rounded-full text-sm font-bold shadow-[0_10px_20px_rgba(200,121,65,0.25)] hover:scale-[1.02] transition-all">
@@ -244,11 +275,36 @@ export default function Cart() {
                   </div>
                 </div>
 
+                {/* Guest info banner — shown only when not logged in */}
+                {!user && (
+                  <div style={{
+                    background: '#FEF9F3',
+                    border: '1px solid #EDD9C0',
+                    borderLeft: '3px solid #C87941',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    display: 'flex',
+                    gap: '10px',
+                    alignItems: 'flex-start',
+                    marginTop: '20px'
+                  }}>
+                    <Info size={18} style={{ color: '#C87941', flexShrink: 0, marginTop: '1px' }} />
+                    <div>
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.875rem', fontWeight: 600, color: '#2C1810', marginBottom: '2px' }}>
+                        Ready to order?
+                      </p>
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', color: '#7A5542', lineHeight: 1.5 }}>
+                        You'll be asked to sign in when you confirm. It's quick and free!
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <button
                   onClick={handleConfirmOrder}
                   disabled={loading || items.some(i => i.is_available === false)}
                   className={`
-                    w-full mt-10 p-5 rounded-[18px] text-lg font-bold shadow-lg transition-all flex items-center justify-center gap-3
+                    w-full mt-6 p-5 rounded-[18px] text-lg font-bold shadow-lg transition-all flex items-center justify-center gap-3
                     ${loading || items.some(i => i.is_available === false)
                       ? 'bg-[#E5D5C5] text-white cursor-not-allowed opacity-80' 
                       : 'bg-gradient-to-br from-[#C87941] to-[#A0622E] text-white hover:shadow-[0_12px_24px_rgba(200,121,65,0.3)] hover:-translate-y-0.5 active:translate-y-0'}
@@ -268,13 +324,22 @@ export default function Cart() {
                 </button>
 
                 <p className="text-center text-[10px] text-[#B08060] mt-8 leading-relaxed max-w-[200px] mx-auto uppercase tracking-widest font-bold">
-                  Collector identity required for curation finalization.
+                  {user ? 'Collector identity confirmed.' : 'Sign in required at checkout.'}
                 </p>
               </div>
             </div>
           </div>
         )}
       </main>
+
+      {/* Auth Modal — shown when guest clicks Confirm Order */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccessAndOrder}
+        cartItemCount={items.length}
+        cartTotal={totalPrice}
+      />
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fadeIn {

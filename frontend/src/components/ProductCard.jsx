@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { addFavourite, removeFavourite } from '../services/api'
 
 export default function ProductCard({ product, isFavourite = false, onToggleFavourite, onHover, showAvailability = false }) {
   const { addItem, items } = useCart()
@@ -17,44 +18,56 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
   const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '')
   
   // Handle availability
-  const isAvailable = product.is_available !== false; // Default true
+  const isAvailable = product.is_available !== false // Default true
 
   const getFullImageUrl = () => {
-    const path = product.image_url || product.imageUrl;
-    if (!path || path === '' || path === '/') return null;
-    if (path.startsWith('http')) return path;
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `${API_URL}${cleanPath}`;
-  };
+    const path = product.image_url || product.imageUrl
+    if (!path || path === '' || path === '/') return null
+    if (path.startsWith('http')) return path
+    const cleanPath = path.startsWith('/') ? path : `/${path}`
+    return `${API_URL}${cleanPath}`
+  }
 
   const handleAddToCart = (e) => {
     e.stopPropagation()
     if (!isAvailable) {
+      // Out of stock — toggle guest/server favourites
       if (!user) {
-        toast.error('Currently out of stock. Login to add to wishlist!', {
-          style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
-        });
-        navigate('/login');
-        return;
+        // Guest: store in localStorage
+        const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]')
+        if (guestFavs.includes(String(product.id))) {
+          toast.error('This product is out of stock and already in your wishlist.', {
+            style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
+          })
+          return
+        }
+        guestFavs.push(String(product.id))
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(guestFavs))
+        if (onToggleFavourite) onToggleFavourite(product.id)
+        toast.success(`"${product.name}" moved to your wishlist!`, {
+          icon: '💖',
+          style: { background: '#FEF9F3', color: '#2C1810', border: '1px solid #C87941' }
+        })
+        return
       }
-      
-      // If already in wishlist, don't do anything extra
+
+      // Logged in: check existing
       if (isFavourite) {
         toast.error('This product is out of stock and already in your wishlist.', {
           style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
-        });
-        return;
+        })
+        return
       }
 
       // Add to wishlist if not already there
       if (onToggleFavourite) {
-        onToggleFavourite(product.id);
+        onToggleFavourite(product.id)
         toast.success(`"${product.name}" moved to your wishlist!`, {
           icon: '💖',
           style: { background: '#FEF9F3', color: '#2C1810', border: '1px solid #C87941' }
-        });
+        })
       }
-      return;
+      return
     }
     addItem(product)
     setAdded(true)
@@ -67,11 +80,26 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
 
   const handleFavouriteClick = (e) => {
     e.stopPropagation()
+
     if (!user) {
-      toast.error('Please login to save favourites.')
-      navigate('/login')
+      // Guest: toggle in localStorage
+      const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]')
+      if (guestFavs.includes(String(product.id))) {
+        const updated = guestFavs.filter(id => id !== String(product.id))
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(updated))
+        toast('Removed from favourites', { icon: '💔' })
+      } else {
+        guestFavs.push(String(product.id))
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(guestFavs))
+        toast.success('Added to favourites ♥', {
+          style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+        })
+      }
+      if (onToggleFavourite) onToggleFavourite(product.id)
       return
     }
+
+    // Logged in — use server API
     if (onToggleFavourite) onToggleFavourite(product.id)
   }
 

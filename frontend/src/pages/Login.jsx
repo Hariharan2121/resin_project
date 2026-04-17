@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
@@ -8,6 +8,7 @@ import '../styles/Auth.css'
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
   const buttonRef = useRef(null)
   
@@ -43,6 +44,23 @@ export default function Login() {
     setTimeout(() => circle.remove(), 600)
   }
 
+  const syncGuestFavourites = async (token) => {
+    const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]');
+    if (guestFavs.length === 0) return;
+    for (const productId of guestFavs) {
+      try {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/favourites`,
+          { productId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (e) {
+        // ignore duplicate errors silently
+      }
+    }
+    localStorage.removeItem('rkltrove_guest_favourites');
+  };
+
   const handleSubmit = async e => {
     e.preventDefault()
     if (!form.email || !form.password) return toast.error('Please complete your credentials')
@@ -54,13 +72,19 @@ export default function Login() {
       const res = await axios.post(apiUrl, form)
       
       setSuccess(true)
+      await syncGuestFavourites(res.data.token)
+      window.dispatchEvent(new Event('authChange'))
       setTimeout(() => {
         login(res.data.user, res.data.token)
         toast.success(`Welcome back, ${res.data.user.name.split(' ')[0]}!`, {
           icon: '✨',
           style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
         })
-        navigate('/')
+        if (location.state?.from === 'cart') {
+          navigate('/cart')
+        } else {
+          navigate('/home')
+        }
       }, 1500)
     } catch (err) {
       toast.error(err.response?.data?.message || 'Authentication failed')

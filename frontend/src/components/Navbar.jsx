@@ -15,6 +15,32 @@ export default function Navbar({ favouriteCount = 0 }) {
   const [showProfileTip, setShowProfileTip] = useState(false)
   const [showLogoutTip, setShowLogoutTip] = useState(false)
 
+  // Auth state for guest vs logged-in display
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userName, setUserName] = useState('')
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('rkl_token')
+      const savedUser = JSON.parse(localStorage.getItem('rkl_user') || '{}')
+      setIsLoggedIn(!!token)
+      setUserName(savedUser.name || '')
+    }
+    checkAuth()
+    window.addEventListener('storage', checkAuth)
+    window.addEventListener('authChange', checkAuth)
+    return () => {
+      window.removeEventListener('storage', checkAuth)
+      window.removeEventListener('authChange', checkAuth)
+    }
+  }, [])
+
+  // Also sync from AuthContext (in case user logs in without localStorage event)
+  useEffect(() => {
+    setIsLoggedIn(!!user)
+    setUserName(user?.name || '')
+  }, [user])
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)
     window.addEventListener('scroll', handleScroll)
@@ -27,24 +53,33 @@ export default function Navbar({ favouriteCount = 0 }) {
 
   const handleLogout = () => {
     logout()
+    setIsLoggedIn(false)
+    setUserName('')
     navigate('/login')
   }
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
+  // Nav links differ based on auth state
+  const loggedInLinks = [
+    { name: 'Home', path: '/home' },
     { name: 'Design Studio', path: '/customize' },
     { name: 'Favourites', path: '/favourites' },
     { name: 'Cart', path: '/cart' },
   ]
+  const guestLinks = [
+    { name: 'Home', path: '/home' },
+    { name: 'Cart', path: '/cart' },
+  ]
 
-  // Add Admin links if applicable
-  if (user?.role === 'admin') {
-    navLinks.push({ name: 'Admin Dashboard', path: '/admin-upload' });
-    navLinks.push({ name: 'All Orders', path: '/admin-orders' });
+  const navLinks = isLoggedIn ? loggedInLinks : guestLinks
+
+  // Admin links
+  if (isLoggedIn && user?.role === 'admin') {
+    navLinks.push({ name: 'Admin Dashboard', path: '/admin-upload' })
+    navLinks.push({ name: 'All Orders', path: '/admin-orders' })
   }
 
-  const activeLinkStyle = "after:w-full after:left-0"
-  const inactiveLinkStyle = "after:w-0 hover:after:w-full hover:after:left-0"
+  const activeLinkStyle = 'after:w-full after:left-0'
+  const inactiveLinkStyle = 'after:w-0 hover:after:w-full hover:after:left-0'
 
   const Badge = ({ count }) => {
     if (count <= 0) return null
@@ -83,7 +118,7 @@ export default function Navbar({ favouriteCount = 0 }) {
       <div className="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between relative">
 
         {/* LEFT — Brand */}
-        <Link to="/" className="flex items-center gap-3 group shrink-0">
+        <Link to="/home" className="flex items-center gap-3 group shrink-0">
           <img
             src="/images/icon.jpg?v=3"
             alt="RKL Trove Logo"
@@ -118,7 +153,7 @@ export default function Navbar({ favouriteCount = 0 }) {
 
         {/* RIGHT — Actions */}
         <div className="flex items-center gap-2 md:gap-3">
-          {user ? (
+          {isLoggedIn ? (
             <>
               {/* Desktop icon shortcuts */}
               <div className="hidden md:flex items-center gap-2">
@@ -132,7 +167,7 @@ export default function Navbar({ favouriteCount = 0 }) {
                 </Link>
               </div>
 
-              {/* Avatar — click goes to /profile */}
+              {/* Avatar */}
               <div className="relative hidden md:block">
                 <button
                   onClick={() => navigate('/profile')}
@@ -141,7 +176,7 @@ export default function Navbar({ favouriteCount = 0 }) {
                   className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold uppercase transition-all duration-300 hover:scale-105 shadow-md shrink-0"
                   style={{ background: 'linear-gradient(135deg, #C87941, #8B4513)' }}
                 >
-                  {user?.name?.charAt(0) || 'U'}
+                  {userName?.charAt(0) || 'U'}
                 </button>
                 {showProfileTip && (
                   <div style={tooltipStyle}>View Profile</div>
@@ -156,13 +191,9 @@ export default function Navbar({ favouriteCount = 0 }) {
                   onMouseLeave={() => setShowLogoutTip(false)}
                   className="flex items-center justify-center transition-all duration-200"
                   style={{
-                    width: '34px',
-                    height: '34px',
-                    borderRadius: '8px',
-                    color: '#9C7B65',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
+                    width: '34px', height: '34px', borderRadius: '8px',
+                    color: '#9C7B65', background: 'transparent',
+                    border: 'none', cursor: 'pointer',
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.color = '#C0392B'
@@ -181,13 +212,64 @@ export default function Navbar({ favouriteCount = 0 }) {
               </div>
             </>
           ) : (
+            /* Guest state — cart icon + Sign In + Sign Up */
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/login" className="px-5 py-2 text-sm font-bold text-[#C87941] border-2 border-[#C87941] rounded-xl hover:bg-orange-50 transition-all">
-                Login
+              {/* Cart icon still accessible */}
+              <Link to="/cart" className="relative p-2 text-gray-400 hover:text-[#D4AF88] transition-all">
+                <ShoppingCart size={22} className={location.pathname === '/cart' ? 'text-[#D4AF88]' : ''} />
+                <Badge count={totalItems} />
               </Link>
-              <Link to="/signup" className="px-5 py-2 text-sm font-bold text-white bg-[#C87941] rounded-xl hover:bg-[#8B4513] transition-all shadow-sm">
+
+              {/* Sign In — outlined amber pill */}
+              <button
+                onClick={() => navigate('/login')}
+                style={{
+                  border: '2px solid #C87941',
+                  color: '#C87941',
+                  background: 'transparent',
+                  borderRadius: '24px',
+                  padding: '8px 20px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF0E3'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateY(0)' }}
+              >
+                Sign In
+              </button>
+
+              {/* Sign Up — filled amber pill */}
+              <button
+                onClick={() => navigate('/signup')}
+                style={{
+                  background: 'linear-gradient(135deg, #C87941, #A0622E)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '24px',
+                  padding: '8px 20px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 12px rgba(200,121,65,0.30)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #B86D35, #8B4513)'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(200,121,65,0.40)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #C87941, #A0622E)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(200,121,65,0.30)'
+                }}
+              >
                 Sign Up
-              </Link>
+              </button>
             </div>
           )}
 
@@ -204,7 +286,7 @@ export default function Navbar({ favouriteCount = 0 }) {
       {/* MOBILE MENU */}
       <div
         className={`absolute top-[100%] left-0 w-full overflow-hidden transition-all duration-300 ease-in-out md:hidden z-40 border-t border-[rgba(212,175,136,0.1)] ${
-          isMenuOpen ? 'max-h-[450px] opacity-100 shadow-[0_10px_40px_rgba(0,0,0,0.8)]' : 'max-h-0 opacity-0'
+          isMenuOpen ? 'max-h-[500px] opacity-100 shadow-[0_10px_40px_rgba(0,0,0,0.8)]' : 'max-h-0 opacity-0'
         }`}
         style={{ background: 'rgba(5, 8, 16, 0.98)', backdropFilter: 'blur(20px)' }}
       >
@@ -229,7 +311,7 @@ export default function Navbar({ favouriteCount = 0 }) {
           ))}
 
           <div className="p-6 pt-4 space-y-3">
-            {user ? (
+            {isLoggedIn ? (
               <>
                 <Link
                   to="/profile"
@@ -255,8 +337,21 @@ export default function Navbar({ favouriteCount = 0 }) {
               </>
             ) : (
               <>
-                <Link to="/login" className="flex items-center justify-center w-full px-4 py-3 text-sm font-bold text-[#D4AF88] border-2 border-[#D4AF88] rounded-xl">Login</Link>
-                <Link to="/signup" className="flex items-center justify-center w-full px-4 py-3 text-sm font-bold text-white bg-[#D4AF88] rounded-xl shadow-lg">Sign Up</Link>
+                <div style={{ borderTop: '1px solid #EDD9C0', paddingTop: '12px' }} />
+                <Link
+                  to="/login"
+                  className="flex items-center justify-center w-full px-4 py-3 text-sm font-bold text-[#C87941]"
+                  style={{ background: 'none', border: 'none' }}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="flex items-center justify-center w-full px-4 py-3 text-sm font-bold text-white rounded-xl shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #C87941, #A0622E)' }}
+                >
+                  Sign Up
+                </Link>
               </>
             )}
           </div>

@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
-import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -17,6 +16,13 @@ import ProductDetail from './pages/ProductDetail'
 import CustomizeStudio from './pages/CustomizeStudio'
 import AdminUpload from './pages/AdminUpload'
 import AdminOrders from './pages/AdminOrders'
+
+// Helper — only redirects to /login if no token present
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('rkl_token')
+  if (!token) return <Navigate to="/login" replace />
+  return children
+}
 
 export default function App() {
   return (
@@ -39,25 +45,29 @@ export default function App() {
             }}
           />
           <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
+
+            {/* Fully public routes — no auth check */}
+            <Route path="/home"         element={<Home />} />
+            <Route path="/product/:id"  element={<ProductDetail />} />
+            <Route path="/cart"         element={<Cart />} />
+            <Route path="/login"        element={<Login />} />
+            <Route path="/signup"       element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verify-otp" element={<VerifyOtp />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-otp"      element={<VerifyOtp />} />
+            <Route path="/reset-password"  element={<ResetPassword />} />
+
+            {/* Admin — public for now (existing behaviour unchanged) */}
             <Route path="/admin-upload" element={<AdminUpload />} />
             <Route path="/admin-orders" element={<AdminOrders />} />
 
-            {/* Protected routes */}
-            <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+            {/* Auth-only routes */}
+            <Route path="/profile"    element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/favourites" element={<ProtectedRoute><Favourites /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
-            <Route path="/customize" element={<ProtectedRoute><CustomizeStudio /></ProtectedRoute>} />
+            <Route path="/customize"  element={<ProtectedRoute><CustomizeStudio /></ProtectedRoute>} />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </CartProvider>
       </AuthProvider>

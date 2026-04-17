@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext'
 import { getProductById, getProducts, getFavourites, addFavourite, removeFavourite } from '../services/api'
 import Navbar from '../components/Navbar'
 import ProductCard from '../components/ProductCard'
+import AuthModal from '../components/AuthModal'
 
 // ── Skeleton component ────────────────────────────────────────────────────────
 function Skeleton({ width = '100%', height = '20px', borderRadius = '8px', style = {} }) {
@@ -41,6 +42,7 @@ export default function ProductDetail() {
   const [imgHovered, setImgHovered] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [showCustomizeAuth, setShowCustomizeAuth] = useState(false)
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -80,17 +82,29 @@ export default function ProductDetail() {
   }, [id, user])
 
   const toggleFavourite = async (prodId) => {
-    if (!user) { toast.error('Please login to save favourites.'); navigate('/login'); return }
     const productId = Number(prodId)
     const wasFav = favouriteIds.has(productId)
     
-    // UI update
+    // Optimistic UI update
     setFavouriteIds(prev => {
       const next = new Set(prev)
       wasFav ? next.delete(productId) : next.add(productId)
       return next
     })
     if (productId === Number(product?.id)) setIsFavourite(!wasFav)
+
+    if (!user) {
+      // Guest: sync to localStorage
+      const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]')
+      if (wasFav) {
+        const updated = guestFavs.filter(id => id !== String(productId))
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(updated))
+      } else {
+        guestFavs.push(String(productId))
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(guestFavs))
+      }
+      return
+    }
 
     try {
       if (wasFav) {
@@ -119,35 +133,46 @@ export default function ProductDetail() {
   const handleAddToCart = async () => {
     if (!product) return
     if (!isAvailable) {
+      // Out of stock — add to favourites (guest or logged-in)
       if (!user) {
-        toast.error('Currently out of stock. Login to add to wishlist!', {
-          style: { background: '#FDF0EF', color: '#C0392B', border: '1px solid #E74C3C' }
-        });
-        navigate('/login');
-        return;
+        const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]')
+        if (guestFavs.includes(String(product.id))) {
+          toast.error('This product is out of stock and already in your wishlist.', {
+            style: { background: '#FEF9F3', color: '#2C1810', border: '1px solid #C87941' }
+          })
+          return
+        }
+        guestFavs.push(String(product.id))
+        localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(guestFavs))
+        setIsFavourite(true)
+        toast.success(`"${product.name}" added to your wishlist!`, {
+          icon: '💖',
+          style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+        })
+        return
       }
 
       if (isFavourite) {
         toast.error('This product is out of stock and already in your wishlist.', {
           style: { background: '#FEF9F3', color: '#2C1810', border: '1px solid #C87941' }
-        });
-        return;
+        })
+        return
       }
 
-      setFavLoading(true);
+      setFavLoading(true)
       try {
-        await addFavourite(product.id);
-        setIsFavourite(true);
+        await addFavourite(product.id)
+        setIsFavourite(true)
         toast.success(`"${product.name}" added to your wishlist!`, {
           icon: '💖',
           style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
-        });
+        })
       } catch (err) {
-        toast.error('Failed to update wishlist.');
+        toast.error('Failed to update wishlist.')
       } finally {
-        setFavLoading(false);
+        setFavLoading(false)
       }
-      return;
+      return
     }
     const existing = items.find(i => i.id === product.id)
     if (existing) {
@@ -162,9 +187,27 @@ export default function ProductDetail() {
   }
 
   const handleFavourite = async () => {
-    if (!user) { toast.error('Please login to save favourites.'); navigate('/login'); return }
     setFavLoading(true)
     try {
+      if (!user) {
+        // Guest: toggle in localStorage
+        const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]')
+        if (guestFavs.includes(String(product.id))) {
+          const updated = guestFavs.filter(id => id !== String(product.id))
+          localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(updated))
+          setIsFavourite(false)
+          toast('Removed from favourites', { icon: '💔' })
+        } else {
+          guestFavs.push(String(product.id))
+          localStorage.setItem('rkltrove_guest_favourites', JSON.stringify(guestFavs))
+          setIsFavourite(true)
+          toast.success('Added to favourites! ♥', {
+            style: { background: '#FBF5EE', color: '#2C1810', border: '1px solid #C87941' }
+          })
+        }
+        setFavLoading(false)
+        return
+      }
       if (isFavourite) {
         await removeFavourite(product.id)
         setIsFavourite(false)
@@ -514,7 +557,13 @@ export default function ProductDetail() {
               {/* Customize */}
               <div style={{ flex: 1, position: 'relative' }} title={!isAvailable ? "Request a custom version" : ""}>
                 <button
-                  onClick={() => navigate(`/customize?product=${product.id}&name=${encodeURIComponent(product.name)}`)}
+                  onClick={() => {
+                    if (!user) {
+                      setShowCustomizeAuth(true)
+                    } else {
+                      navigate(`/customize?product=${product.id}&name=${encodeURIComponent(product.name)}`)
+                    }
+                  }}
                   style={{
                     width: '100%', height: '52px', borderRadius: '14px',
                     background: 'white', border: '2px solid #C87941', color: '#C87941',
@@ -617,6 +666,18 @@ export default function ProductDetail() {
           </div>
         )}
       </div>
+
+      {/* Auth modal for Customize button (guests) */}
+      <AuthModal
+        isOpen={showCustomizeAuth}
+        onClose={() => setShowCustomizeAuth(false)}
+        onAuthSuccess={() => {
+          setShowCustomizeAuth(false)
+          navigate(`/customize?product=${product?.id}&name=${encodeURIComponent(product?.name || '')}`)
+        }}
+        cartItemCount={0}
+        cartTotal={0}
+      />
     </div>
   )
 }
