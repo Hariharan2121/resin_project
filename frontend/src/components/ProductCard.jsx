@@ -190,19 +190,66 @@ export default function ProductCard({ product, isFavourite = false, onToggleFavo
       </div>
 
       {/* Product Info */}
-      <div className="p-4 md:p-5 flex flex-col flex-grow">
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
+        {/* LINE 1 — Specific product name */}
         <h3
-          className="font-serif text-[1.1rem] font-semibold text-[#2C1810] mb-2 line-clamp-2 leading-snug min-h-[2.8rem] cursor-pointer hover:text-[#C87941] transition-colors duration-200"
+          style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: '1.4rem',
+            fontWeight: 800,
+            color: '#1A0F00',
+            lineHeight: 1.1,
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            marginBottom: '4px',
+            cursor: 'pointer',
+            letterSpacing: '-0.02em'
+          }}
           onClick={handleNavigateToDetail}
+          onMouseEnter={e => e.currentTarget.style.color = '#C87941'}
+          onMouseLeave={e => e.currentTarget.style.color = '#1A0F00'}
         >
           {product.name}
         </h3>
 
+        {/* LINE 2 — Collection name (only if set) */}
+        {product.collection && (
+          <span style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            color: '#C87941',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            display: 'block',
+            marginBottom: '4px'
+          }}>
+            {product.collection}
+          </span>
+        )}
+
+        {/* LINE 3 — Description (only if set) */}
         {(product.description || '').trim() && (
-          <p className="text-[0.82rem] text-[#7A5542] mb-4 line-clamp-2 leading-relaxed italic">
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.78rem',
+            fontWeight: 400,
+            color: '#7A5542',
+            lineHeight: 1.5,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            marginTop: '2px'
+          }}>
             {product.description}
           </p>
         )}
+
+        {/* Divider */}
+        <div style={{ height: '1px', background: '#F0E0CF', margin: '8px 0' }} />
 
         <div className="flex items-center justify-between mt-auto pt-4">
           <div className="flex flex-col">

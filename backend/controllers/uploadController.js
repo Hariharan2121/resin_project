@@ -63,6 +63,7 @@ const uploadProducts = async (req, res) => {
     const headers = rawRows[0].map(h => String(h).trim().toLowerCase());
 
     const nameIdx        = headers.indexOf('name');
+    const collectionIdx  = headers.indexOf('collection');
     const priceIdx       = headers.indexOf('price');
     const imageUrlIdx    = headers.indexOf('image_url');
     const descriptionIdx = headers.indexOf('description');
@@ -84,14 +85,14 @@ const uploadProducts = async (req, res) => {
       const row = dataRows[i];
       if (!row || row.length === 0) continue;
 
-      const name = String(row[nameIdx] || '').trim();
-      if (!name) continue;
+      const rawName = String(row[nameIdx] || '').trim();
+      if (!rawName) continue;
 
       const priceRaw = row[priceIdx];
       const price    = parseFloat(priceRaw);
 
       if (isNaN(price) || price < 0) {
-        errors.push({ name, reason: `Invalid price value: ${priceRaw}` });
+        errors.push({ name: rawName, reason: `Invalid price value: ${priceRaw}` });
         continue;
       }
 
@@ -108,7 +109,32 @@ const uploadProducts = async (req, res) => {
         : '';
       const is_available = !['false', 'no', '0', 'unavailable'].includes(isAvailableRaw);
 
-      products.push({ name, price, image_url, description, is_available });
+      // PARSE COLLECTION — from dedicated column or auto-extract from name
+      let parsedName       = rawName;
+      let parsedCollection = '';
+
+      if (collectionIdx !== -1) {
+        // Explicit collection column present — use it directly
+        parsedCollection = String(row[collectionIdx] || '').trim();
+        parsedName       = rawName;
+      } else if (rawName.includes(' - ')) {
+        // No collection column — auto-extract from name if it contains separator
+        const parts = rawName.split(' - ');
+        if (parts.length === 2) {
+          parsedCollection = parts[0].trim();
+          parsedName       = parts[1].trim();
+        } else if (parts.length >= 3) {
+          parsedCollection = parts[parts.length - 2].trim();
+          parsedName       = parts[parts.length - 1].trim();
+        }
+      } else if (rawName.includes(' Collection ')) {
+        // Fallback for space-based names
+        const parts = rawName.split(' Collection ');
+        parsedCollection = parts[0].trim() + ' Collection';
+        parsedName       = parts[1].trim();
+      }
+
+      products.push({ name: parsedName, collection: parsedCollection, price, image_url, description, is_available });
     }
 
     if (products.length === 0 && errors.length === 0) {
@@ -124,11 +150,12 @@ const uploadProducts = async (req, res) => {
         const exists = await Product.findOne({ name: product.name });
         await Product.findOneAndUpdate(
           { name: product.name },
-          { 
-            name: product.name, 
-            price: product.price, 
-            image_url: product.image_url, 
-            description: product.description,
+          {
+            name:         product.name,
+            collection:   product.collection,
+            price:        product.price,
+            image_url:    product.image_url,
+            description:  product.description,
             is_available: product.is_available
           },
           { upsert: true, new: true, runValidators: true }

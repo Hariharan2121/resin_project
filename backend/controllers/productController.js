@@ -11,6 +11,7 @@ const getProducts = async (req, res) => {
     const data = products.map(product => ({
       id:          product._id.toString(),
       name:        product.name        || '',
+      collection:  product.collection  || '',
       price:       parseFloat(product.price) || 0,
       image_url:   product.image_url   || '',
       description: product.description || '',
@@ -42,6 +43,7 @@ const getProductById = async (req, res) => {
       data: {
         id:          product._id.toString(),
         name:        product.name,
+        collection:  product.collection || '',
         price:       parseFloat(product.price) || 0,
         image_url:   product.image_url   || '',
         description: product.description || '',

@@ -23,6 +23,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState('Default')
   const [priceFilter, setPriceFilter] = useState('All Prices')
   const [availabilityFilter, setAvailabilityFilter] = useState('All Items')
+  const [collectionFilter, setCollectionFilter] = useState('All')
 
   // Interaction State
   const [favouriteIds, setFavouriteIds] = useState(new Set())
@@ -125,9 +126,24 @@ export default function Home() {
     })
   }
 
+  // Derive unique collection list from fetched products
+  const collections = [
+    'All',
+    ...new Set(
+      products
+        .map(p => p.collection)
+        .filter(c => c && c.trim() !== '')
+    )
+  ]
+
   // Filter & Sort Logic
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
+    const query = search.toLowerCase()
+    const matchesSearch =
+      p.name.toLowerCase().includes(query) ||
+      (p.collection && p.collection.toLowerCase().includes(query)) ||
+      (p.description && p.description.toLowerCase().includes(query))
+
     const price = parseFloat(p.price)
     let matchesPrice = true
     if (priceFilter === 'Under ₹500') matchesPrice = price < 500
@@ -141,7 +157,11 @@ export default function Home() {
     if (availabilityFilter === 'Available') matchesAvailability = isAvailable;
     else if (availabilityFilter === 'Out of Stock') matchesAvailability = !isAvailable;
 
-    return matchesSearch && matchesPrice && matchesAvailability
+    // Collection filter
+    let matchesCollection = true
+    if (collectionFilter !== 'All') matchesCollection = p.collection === collectionFilter
+
+    return matchesSearch && matchesPrice && matchesAvailability && matchesCollection
   }).sort((a, b) => {
     if (sortBy === 'Price: Low to High') return a.price - b.price
     if (sortBy === 'Price: High to Low') return b.price - a.price
@@ -268,9 +288,53 @@ export default function Home() {
       {/* Main Content Area */}
       <main className="w-full px-4 md:px-12 py-12 flex flex-col lg:flex-row gap-10">
 
+        {/* Mobile Collection Pill Tabs */}
+        {collections.length > 1 && (
+          <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 -mb-4 scrollbar-hide">
+            {collections.map(col => (
+              <button
+                key={col}
+                onClick={() => setCollectionFilter(col)}
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                  collectionFilter === col
+                    ? 'bg-[#C87941] text-white border-[#C87941] shadow-sm'
+                    : 'bg-white text-[#7A5542] border-[#DEC5A8] hover:border-[#C87941] hover:text-[#C87941]'
+                }`}
+              >
+                {col}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* TASK 3 — LEFT SIDEBAR (Desktop) */}
         <aside className="hidden lg:block w-[220px] flex-shrink-0">
           <div className="sticky top-28 space-y-8">
+            <section>
+              <h3 className="text-[0.75rem] font-bold text-[#9C7B65] tracking-[0.08em] uppercase mb-4">Collection</h3>
+              <div className="space-y-3">
+                {collections.map(col => (
+                  <label key={col} className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative flex items-center justify-center">
+                      <input
+                        type="radio"
+                        name="collection"
+                        checked={collectionFilter === col}
+                        onChange={() => setCollectionFilter(col)}
+                        className="peer appearance-none w-4 h-4 rounded-full border-[1.5px] border-[#DEC5A8] checked:border-[#C87941] transition-all"
+                      />
+                      <div className="absolute w-2 h-2 rounded-full bg-[#C87941] opacity-0 peer-checked:opacity-100 transition-opacity" />
+                    </div>
+                    <span className={`text-[0.875rem] transition-colors ${collectionFilter === col ? 'text-[#C87941] font-bold' : 'text-[#3D2B1A] group-hover:text-[#C87941]'}`}>
+                      {col}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </section>
+
+            <div className="h-[1px] bg-[#EDD9C0]" />
+
             <section>
               <h3 className="text-[0.75rem] font-bold text-[#9C7B65] tracking-[0.08em] uppercase mb-4">Availability</h3>
               <div className="space-y-3">
@@ -415,7 +479,7 @@ export default function Home() {
               <h3 className="font-serif text-2xl font-bold text-[#5C3D2A] mb-2">No products found for "{search}"</h3>
               <p className="text-[#9C7B65] mb-8">Try adjusting your filters or search keywords.</p>
               <button
-                onClick={() => { setSearch(''); setPriceFilter('All Prices'); setAvailabilityFilter('All Items'); }}
+                onClick={() => { setSearch(''); setPriceFilter('All Prices'); setAvailabilityFilter('All Items'); setCollectionFilter('All'); }}
                 className="px-8 py-3 rounded-full border-2 border-[#C87941] text-[#C87941] font-bold hover:bg-[#C87941] hover:text-white transition-all"
               >
                 Clear All Filters

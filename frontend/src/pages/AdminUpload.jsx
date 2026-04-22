@@ -107,26 +107,29 @@ const AdminUpload = () => {
 
     const downloadSample = () => {
         const sampleData = [
-            { 
-                name: 'Resin Coaster Set', 
-                price: 499.00, 
-                image_url: '/images/product_1.jpg', 
-                description: 'Beautiful handcrafted resin coasters',
+            {
+                name:         'Ocean Whisper',
+                collection:   'Coastal Collection',
+                price:        249,
+                image_url:    '',
+                description:  'Ocean-inspired blue resin keychain',
                 is_available: 'true'
             },
-            { 
-                name: 'Resin Keychain', 
-                price: 199.00, 
-                image_url: '/images/product_2.jpg', 
-                description: 'Cute personalized resin keychains',
+            {
+                name:         'Forever Bloom',
+                collection:   'Forever Collection',
+                price:        899,
+                image_url:    '',
+                description:  'Real rose in resin frame - 5inch (Heart)',
                 is_available: 'true'
             },
-            { 
-                name: 'Resin Tray', 
-                price: 899.00, 
-                image_url: '/images/product_3.jpg', 
-                description: 'Elegant resin tray for home decor',
-                is_available: 'false'
+            {
+                name:         'Aqua Chrono',
+                collection:   'Chrono Collection',
+                price:        2199,
+                image_url:    '',
+                description:  'A resin wall clock with a coastal design',
+                is_available: 'true'
             }
         ];
 
@@ -205,13 +208,19 @@ const AdminUpload = () => {
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">name</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#2E7D32] font-bold">✓ Yes</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Text</td>
-                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Resin Coaster Set</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Ocean Whisper</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">collection</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#9C7B65]">Optional</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Text</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Coastal Collection</td>
                                 </tr>
                                 <tr>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">price</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#2E7D32] font-bold">✓ Yes</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Number</td>
-                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">499.00</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">249</td>
                                 </tr>
                                 <tr>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">image_url</td>
@@ -223,22 +232,27 @@ const AdminUpload = () => {
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">description</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#9C7B65]">Optional</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Text</td>
-                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Beautiful resin...</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Ocean-inspired keychain</td>
                                 </tr>
                                 <tr>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">is_available</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#9C7B65]">Optional</td>
                                     <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">Boolean</td>
-                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">true / false / yes / no / 1 / 0</td>
+                                    <td className="border border-[#EDD9C0] p-2 text-[0.82rem] text-[#3D2B1A]">true / false</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <p className="text-[#B08060] text-[0.78rem] italic leading-relaxed">
-                            ⚠ Row 1 must be the header row. Name is used as the unique identifier for updates.
-                        </p>
+                        <div className="flex flex-col">
+                            <p className="text-[#B08060] text-[0.78rem] italic leading-relaxed">
+                                ⚠ Row 1 must be the header row. Name is used as the unique identifier for updates.
+                            </p>
+                            <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', fontStyle: 'italic', color: '#7A5542', marginTop: '4px' }}>
+                                💡 'name' should be the specific product name only (e.g., 'Ocean Whisper', not 'Coastal Collection - Ocean Whisper'). Use 'collection' column for the collection name separately.
+                            </p>
+                        </div>
                         <button 
                             onClick={downloadSample}
                             className="flex items-center gap-2 border-1.5 border-[#C87941] text-[#C87941] bg-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#FEF0E3] transition-colors whitespace-nowrap"

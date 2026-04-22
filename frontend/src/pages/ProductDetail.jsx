@@ -336,12 +336,8 @@ export default function ProductDetail() {
             <Home size={13} /> Home
           </span>
           <span style={{ color: '#C4A882' }}>›</span>
-          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }}
-            onClick={() => navigate('/')}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#C87941'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#9C7B65'}
-          >
-            Products
+          <span style={{ color: '#9C7B65' }}>
+            {product.collection || 'Products'}
           </span>
           <span style={{ color: '#C4A882' }}>›</span>
           <span style={{ color: '#2C1810', fontWeight: 500 }}>{product.name}</span>
@@ -442,8 +438,24 @@ export default function ProductDetail() {
               )}
             </div>
 
+            {/* Collection tag — shown only if set */}
+            {product.collection && (
+              <div style={{ ...fadeIn(200), marginBottom: '6px', marginTop: '4px' }}>
+                <span style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: '#C87941',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase'
+                }}>
+                  {product.collection}
+                </span>
+              </div>
+            )}
+
             {/* Product name */}
-            <h1 style={{ ...fadeIn(280), fontFamily: "var(--font-heading)", fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 800, color: '#2C1810', lineHeight: 1.1, marginTop: '12px', letterSpacing: '-0.03em' }}>
+            <h1 style={{ ...fadeIn(280), fontFamily: "var(--font-heading)", fontSize: isMobile ? '1.8rem' : '3rem', fontWeight: 900, color: '#1A0F00', lineHeight: 1.05, marginBottom: '12px', letterSpacing: '-0.04em' }}>
               {product.name}
             </h1>
 
@@ -473,8 +485,8 @@ export default function ProductDetail() {
 
             {/* Description */}
             <div style={fadeIn(520)}>
-              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: '#9C7B65', textTransform: 'uppercase', marginBottom: '10px' }}>About This Product</p>
-              <p style={{ fontSize: '0.95rem', color: '#3D2B1A', lineHeight: 1.7 }}>
+              <p style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', color: '#9C7B65', textTransform: 'uppercase', marginBottom: '10px' }}>The Story</p>
+              <p style={{ fontSize: '0.9rem', color: '#3D2B1A', lineHeight: 1.8, opacity: 0.9 }}>
                 {product.description || 'A beautifully handcrafted resin piece, made with premium materials and love. Each item is unique and one-of-a-kind.'}
               </p>
             </div>
