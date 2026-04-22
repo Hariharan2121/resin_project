@@ -96,12 +96,12 @@ export default function Cart() {
         <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
              style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
         <Navbar />
-        <div className="max-w-xl mx-auto px-6 py-32 text-center animate-fade-slide-up relative z-10">
+        <div className="max-w-xl mx-auto px-6 py-12 md:py-32 text-center animate-fade-slide-up relative z-10">
           <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-8 border border-[#C87941]/30 shadow-[0_12px_40px_rgba(200,121,65,0.15)] relative overflow-hidden">
              <div className="absolute inset-0 bg-gradient-to-br from-[#C87941]/20 to-transparent" />
              <CheckCircle size={48} className="text-[#C87941] relative z-10" />
           </div>
-          <h2 className="text-5xl font-serif font-bold text-[#2C1810] mb-6">Treasures Secured</h2>
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#2C1810] mb-6">Treasures Secured</h2>
           <p className="text-[#7A5542] text-lg leading-relaxed mb-10 italic max-w-sm mx-auto">
             Thank you, <span className="text-[#C87941] font-bold">{displayUser.name}</span>. Your unique curation is now part of the RKL Trove. We will contact <span className="text-[#2C1810] font-bold">{displayUser.email}</span> shortly.
           </p>
@@ -121,9 +121,9 @@ export default function Cart() {
            style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
       <Navbar />
 
-      <main className="max-w-[1440px] mx-auto px-4 md:px-12 py-16 relative z-10">
+      <main className="max-w-[1440px] mx-auto px-4 md:px-12 py-8 md:py-16 relative z-10">
         {/* Navigation Breadcrumb */}
-        <div className="mb-12 animate-fade-in">
+        <div className="mb-8 md:mb-12 animate-fade-in">
           <Link to="/" className="group inline-flex items-center gap-2 text-[#9C7B65] hover:text-[#C87941] transition-all font-bold text-xs uppercase tracking-widest">
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-[#EDD9C0] group-hover:-translate-x-1 transition-transform shadow-sm">
                <ArrowLeft size={14} />
@@ -133,12 +133,12 @@ export default function Cart() {
         </div>
 
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-12 border-b border-[#EDD9C0] pb-8 animate-fade-slide-up">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-8 md:mb-12 border-b border-[#EDD9C0] pb-8 animate-fade-slide-up">
            <div>
              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F5E6D3] text-[#C87941] text-[10px] font-bold rounded-full uppercase mb-4 tracking-widest shadow-sm">
                <Sparkles size={10} /> Your Selection
              </div>
-              <h1 className="text-5xl md:text-6xl font-sans font-extrabold text-[#2C1810]" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.03em' }}>The <span className="italic text-[#C87941]">Curation</span></h1>
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-sans font-extrabold text-[#2C1810]" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.03em' }}>The <span className="italic text-[#C87941]">Curation</span></h1>
            </div>
            {items.length > 0 && (
              <div className="text-right">
@@ -165,7 +165,7 @@ export default function Cart() {
               {items.map(item => (
                 <article key={item.id} className="relative group bg-white rounded-[24px] p-5 md:p-6 flex flex-col sm:flex-row gap-6 items-center shadow-[0_4px_24px_rgba(44,26,14,0.04)] border border-[#F0E0CF] transition-all duration-500 hover:shadow-[0_12px_40px_rgba(200,121,65,0.12)] hover:border-[#DEC5A8]">
                   {/* Item Image */}
-                  <div className="relative w-32 h-32 md:w-36 md:h-36 flex-shrink-0">
+                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex-shrink-0">
                     <img
                       src={item.image_url}
                       alt={item.name}
@@ -177,7 +177,7 @@ export default function Cart() {
 
                   {/* Item Details */}
                   <div className="flex-1 min-w-0 text-center sm:text-left">
-                    <h3 className="text-xl md:text-2xl font-sans font-extrabold text-[#2C1810] mb-2 leading-tight group-hover:text-[#C87941] transition-colors" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
+                    <h3 className="text-lg md:text-2xl font-sans font-extrabold text-[#2C1810] mb-2 leading-tight group-hover:text-[#C87941] transition-colors" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
                       {item.name}
                     </h3>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
@@ -220,7 +220,7 @@ export default function Cart() {
               ))}
 
               {/* Security Badge */}
-              <div className="flex items-center justify-center gap-6 py-6 opacity-60">
+              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 py-6 opacity-60">
                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#7A5542]">
                     <ShieldCheck size={16} className="text-[#C87941]" /> Secured Checkout
                  </div>
@@ -235,7 +235,7 @@ export default function Cart() {
 
             {/* ORDER SUMMARY PANEL */}
             <div className="lg:col-span-4 lg:sticky lg:top-32 animate-fade-in [animation-delay:400ms]">
-              <div className="bg-white rounded-[32px] p-8 md:p-10 border border-[#EDD9C0] shadow-[0_12px_40px_rgba(44,26,14,0.06)] relative overflow-hidden">
+              <div className="bg-white rounded-[32px] p-6 md:p-10 border border-[#EDD9C0] shadow-[0_12px_40px_rgba(44,26,14,0.06)] relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 text-[#C87941]/5 pointer-events-none">
                    <Sparkles size={80} />
                 </div>
@@ -269,7 +269,7 @@ export default function Cart() {
                   <div className="flex justify-between items-end pt-8 bg-gradient-to-t from-[#FBF5EE]/50 to-transparent p-4 -mx-4 rounded-b-2xl">
                     <span className="text-[#2C1810] font-bold text-lg uppercase tracking-wider">Total Investment</span>
                     <div className="text-right">
-                       <span className="text-4xl font-extrabold text-[#C87941]" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>{fmt(totalPrice)}</span>
+                       <span className="text-3xl md:text-4xl font-extrabold text-[#C87941]" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>{fmt(totalPrice)}</span>
                        <p className="text-[9px] text-[#9C7B65] uppercase tracking-widest font-black mt-1">Luxe Inclusive</p>
                     </div>
                   </div>

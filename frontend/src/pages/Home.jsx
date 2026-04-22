@@ -168,7 +168,7 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F5E6D3] text-[#C87941] text-xs font-bold tracking-widest uppercase mb-6 shadow-sm border border-[#EDD9C0]/50">
             <Star size={12} className="fill-current" /> Artisanal Excellence
           </div>
-          <h1 className="text-5xl md:text-7xl font-sans font-extrabold text-[#2C1810] leading-[1.1] mb-6 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+          <h1 className="text-4xl md:text-7xl font-sans font-extrabold text-[#2C1810] leading-[1.1] mb-6 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
             Handcrafted Resin <br /> keepsakes made to  <span className="text-[#C87941] italic">Preserve Your Moments</span>
           </h1>
           <p className="text-lg md:text-xl text-[#7A5542] max-w-2xl mx-auto font-light leading-relaxed mb-10">
@@ -423,7 +423,7 @@ export default function Home() {
             </div>
           ) : (
             /* DYNAMIC FLUID GRID */
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 w-full animate-fade-in">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-8 w-full animate-fade-in">
               {filteredProducts.map(product => (
                 <ProductCard
                   key={product.id}

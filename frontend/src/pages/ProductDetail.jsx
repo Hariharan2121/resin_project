@@ -260,7 +260,7 @@ export default function ProductDetail() {
           <div style={{ display: 'flex', gap: '48px', flexDirection: isMobile ? 'column' : 'row' }}>
             <div style={{ flex: 1 }}>
               <Skeleton height={isMobile ? '280px' : '440px'} borderRadius="20px" style={{ marginBottom: '12px' }} />
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-16 items-start">
                 {[1,2,3].map(i => <Skeleton key={i} width="70px" height="70px" borderRadius="10px" />)}
               </div>
             </div>
@@ -290,7 +290,7 @@ export default function ProductDetail() {
         <Navbar />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
           <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🔍</div>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '1.8rem', color: '#2C1810', marginBottom: '12px' }}>Product Not Found</h2>
+          <h1 className="text-3xl md:text-6xl font-sans font-extrabold text-[#2C1810] mb-4 leading-[1.1] tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Product Not Found</h1>
           <p style={{ color: '#9C7B65', marginBottom: '24px' }}>This product may have been removed or doesn't exist.</p>
           <button
             onClick={() => navigate('/')}
