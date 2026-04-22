@@ -97,7 +97,7 @@ export default function Navbar({ favouriteCount = 0 }) {
     transform: 'translateX(-50%)',
     background: '#2C1810',
     color: 'white',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "var(--font-body)",
     fontSize: '0.72rem',
     padding: '4px 10px',
     borderRadius: '6px',
@@ -125,12 +125,14 @@ export default function Navbar({ favouriteCount = 0 }) {
             className="h-[44px] w-[44px] rounded-full object-cover"
             style={{ objectPosition: 'center' }}
           />
-          <h1 className="font-bold text-[1.25rem] md:text-[1.5rem] tracking-[0.02em] font-serif leading-none pt-0.5"
+          <h1 className="font-bold text-[1.25rem] md:text-[1.5rem] tracking-[0.02em] font-sans leading-none pt-0.5"
             style={{
               background: 'linear-gradient(135deg, #F4D39B 0%, #D4AF88 50%, #AF8F6F 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
+              backgroundClip: 'text',
+              fontFamily: 'var(--font-heading)',
+              letterSpacing: '-0.02em'
             }}>
             RKL Trove
           </h1>
@@ -229,7 +231,7 @@ export default function Navbar({ favouriteCount = 0 }) {
                   background: 'transparent',
                   borderRadius: '24px',
                   padding: '8px 20px',
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "var(--font-body)",
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -250,7 +252,7 @@ export default function Navbar({ favouriteCount = 0 }) {
                   border: 'none',
                   borderRadius: '24px',
                   padding: '8px 20px',
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "var(--font-body)",
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   cursor: 'pointer',

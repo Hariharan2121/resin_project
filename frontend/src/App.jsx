@@ -39,7 +39,7 @@ export default function App() {
                 borderRadius: '12px',
                 boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
                 fontSize: '14px',
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'var(--font-heading)',
               },
               success: { iconTheme: { primary: '#C87941', secondary: '#fff' } },
             }}

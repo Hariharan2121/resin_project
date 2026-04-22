@@ -222,13 +222,14 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, cartItemCoun
             <Lock size={24} color="#C87941" />
           </div>
           <h2 style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: '1.4rem', fontWeight: 700, color: '#2C1810', margin: 0
+            fontFamily: "var(--font-heading)",
+            fontSize: '1.4rem', fontWeight: 800, color: '#2C1810', margin: 0,
+            letterSpacing: '-0.02em'
           }}>
             Almost there!
           </h2>
           <p style={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "var(--font-body)",
             fontSize: '0.875rem', fontStyle: 'italic', color: '#7A5542',
             marginTop: '6px', lineHeight: 1.5
           }}>
@@ -244,11 +245,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, cartItemCoun
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             marginTop: '16px'
           }}>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', color: '#5C3D2A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: '0.82rem', color: '#5C3D2A', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <ShoppingBag size={14} color="#C87941" />
               {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'} in your cart
             </span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.875rem', fontWeight: 700, color: '#C87941' }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: '0.875rem', fontWeight: 800, color: '#C87941' }}>
               Total: {fmt(cartTotal)}
             </span>
           </div>
@@ -266,7 +267,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, cartItemCoun
                 onClick={() => { setActiveTab(tab.id); setSignInError(''); setSignUpError('') }}
                 style={{
                   flex: 1, padding: '10px', borderRadius: '10px', border: 'none',
-                  cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                  cursor: 'pointer', fontFamily: "var(--font-body)",
                   fontSize: '0.875rem', fontWeight: 600,
                   transition: 'all 0.2s ease',
                   background: activeTab === tab.id ? '#FFFFFF' : 'transparent',
@@ -317,7 +318,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, cartItemCoun
                 <button
                   type="button"
                   onClick={() => { onClose(); navigate('/forgot-password') }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: '0.8rem', color: '#9C7B65' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: "var(--font-body)", fontSize: '0.8rem', color: '#9C7B65' }}
                   onMouseEnter={e => e.currentTarget.style.color = '#C87941'}
                   onMouseLeave={e => e.currentTarget.style.color = '#9C7B65'}
                 >
@@ -327,7 +328,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, cartItemCoun
 
               {/* Error */}
               {signInError && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#C0392B', fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#C0392B', fontFamily: "var(--font-body)", fontSize: '0.82rem' }}>
                   <AlertCircle size={14} />
                   {signInError}
                 </div>
@@ -405,7 +406,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, cartItemCoun
 
               {/* Error */}
               {signUpError && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#C0392B', fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#C0392B', fontFamily: "var(--font-body)", fontSize: '0.82rem' }}>
                   <AlertCircle size={14} />
                   {signUpError}
                 </div>
@@ -427,7 +428,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, cartItemCoun
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
         }}>
           <Lock size={11} color="#B08060" />
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', fontStyle: 'italic', color: '#B08060' }}>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: '0.72rem', fontStyle: 'italic', color: '#B08060' }}>
             Your information is secure and encrypted
           </span>
         </div>
@@ -459,7 +460,7 @@ function InputField({ icon, type, placeholder, value, onChange, rightEl, borderC
         onBlur={() => setFocused(false)}
         style={{
           flex: 1, background: 'transparent', border: 'none', outline: 'none',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '0.875rem', color: '#2C1810'
+          fontFamily: "var(--font-body)", fontSize: '0.875rem', color: '#2C1810'
         }}
       />
       {rightEl}
@@ -478,7 +479,7 @@ function AuthButton({ children, loading, disabled }) {
           ? '#E5D5C5'
           : 'linear-gradient(135deg, #C87941, #A0622E)',
         color: 'white', cursor: disabled ? 'not-allowed' : 'pointer',
-        fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem', fontWeight: 600,
+        fontFamily: "var(--font-body)", fontSize: '0.9rem', fontWeight: 600,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
         boxShadow: disabled ? 'none' : '0 4px 16px rgba(200,121,65,0.30)',
         transition: 'all 0.2s ease',

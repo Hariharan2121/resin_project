@@ -95,7 +95,7 @@ export default function Login() {
   const styles = {
     container: {
       backgroundColor: '#FBF5EE',
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "var(--font-body)",
       color: '#2C1810',
     },
     leftPanel: {
@@ -139,7 +139,7 @@ export default function Login() {
       zIndex: 1
     },
     brandName: {
-      fontFamily: "'Playfair Display', serif",
+      fontFamily: "var(--font-heading)",
       fontSize: '3rem',
       fontWeight: 800,
       background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)',
@@ -183,7 +183,7 @@ export default function Login() {
       content: '""',
       fontSize: '1.8rem',
       color: 'rgba(200,121,65,0.35)',
-      fontFamily: "'Playfair Display', serif",
+      fontFamily: "var(--font-heading)",
       position: 'absolute',
       left: '-5px',
       top: '-10px'
@@ -191,7 +191,7 @@ export default function Login() {
     quoteSuffix: {
       fontSize: '1.8rem',
       color: 'rgba(200,121,65,0.35)',
-      fontFamily: "'Playfair Display', serif",
+      fontFamily: "var(--font-heading)",
       position: 'absolute',
       right: '-5px',
       bottom: '-15px'
@@ -306,12 +306,12 @@ export default function Login() {
         }}>
           <div className="mobile-brand">
             <img src="/images/icon.jpg?v=3" alt="RKL Logo" style={{ height: '64px', width: '64px', objectFit: 'cover', borderRadius: '50%', marginBottom: '12px' }} />
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.05em' }}>RKL Trove</h2>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.05em' }}>RKL Trove</h2>
             <div style={{ width: '40px', height: '2px', background: '#C87941', marginTop: '4px' }} />
           </div>
 
           <div style={{ width: '36px', height: '3px', background: 'linear-gradient(90deg, #C87941, #E8A96E)', borderRadius: '2px', marginBottom: '12px', opacity: mounted ? 1 : 0, animation: 'fadeIn 0.4s ease-out forwards', animationDelay: '350ms' }} />
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', fontWeight: 700, color: '#2C1810', lineHeight: 1.2, opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.45s ease-out forwards', animationDelay: '400ms' }}>Welcome Back</h2>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '1.75rem', fontWeight: 700, color: '#2C1810', lineHeight: 1.2, opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.45s ease-out forwards', animationDelay: '400ms' }}>Welcome Back</h2>
           <p style={{ fontSize: '0.9rem', color: '#9C7B65', marginTop: '6px', marginBottom: '32px', opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.4s ease-out forwards', animationDelay: '480ms' }}>Sign in to explore our collection</p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -323,7 +323,7 @@ export default function Login() {
                   type="email"
                   name="email"
                   placeholder="name@exclusive.com"
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "var(--font-body)", fontSize: '0.95rem' }}
                   value={form.email}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('email')}
@@ -343,7 +343,7 @@ export default function Login() {
                   type={showPass ? 'text' : 'password'}
                   name="password"
                   placeholder="••••••••"
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "var(--font-body)", fontSize: '0.95rem' }}
                   value={form.password}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('password')}

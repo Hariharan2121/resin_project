@@ -70,9 +70,9 @@ export default function ProductDetail() {
       setProduct(prod)
       setAllProducts(prods || [])
       const favData = favRes?.data?.data || favRes?.data || []
-      const ids = new Set(favData.map(f => Number(f.id)))
+      const ids = new Set(favData.map(f => f.id))
       setFavouriteIds(ids)
-      setIsFavourite(ids.has(Number(prod.id)))
+      setIsFavourite(ids.has(product?.id || id))
       setLoading(false)
       setTimeout(() => setMounted(true), 50)
     }).catch(err => {
@@ -82,7 +82,7 @@ export default function ProductDetail() {
   }, [id, user])
 
   const toggleFavourite = async (prodId) => {
-    const productId = Number(prodId)
+    const productId = prodId
     const wasFav = favouriteIds.has(productId)
     
     // Optimistic UI update
@@ -91,7 +91,7 @@ export default function ProductDetail() {
       wasFav ? next.delete(productId) : next.add(productId)
       return next
     })
-    if (productId === Number(product?.id)) setIsFavourite(!wasFav)
+    if (productId === (product?.id || id)) setIsFavourite(!wasFav)
 
     if (!user) {
       // Guest: sync to localStorage
@@ -247,7 +247,7 @@ export default function ProductDetail() {
   // ── Loading Skeleton ──────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "var(--font-body)" }}>
         <style>{`
           @keyframes skeletonPulse {
             0%, 100% { background-color: #F0E0CF; }
@@ -286,15 +286,15 @@ export default function ProductDetail() {
   // ── Not Found ──────────────────────────────────────────────────────────────
   if (notFound) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "var(--font-body)" }}>
         <Navbar />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
           <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🔍</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.8rem', color: '#2C1810', marginBottom: '12px' }}>Product Not Found</h2>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '1.8rem', color: '#2C1810', marginBottom: '12px' }}>Product Not Found</h2>
           <p style={{ color: '#9C7B65', marginBottom: '24px' }}>This product may have been removed or doesn't exist.</p>
           <button
             onClick={() => navigate('/')}
-            style={{ background: 'linear-gradient(135deg, #C87941, #A0622E)', color: 'white', border: 'none', borderRadius: '12px', padding: '12px 28px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
+            style={{ background: 'linear-gradient(135deg, #C87941, #A0622E)', color: 'white', border: 'none', borderRadius: '12px', padding: '12px 28px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', fontFamily: "var(--font-body)" }}
           >
             Back to Store
           </button>
@@ -304,7 +304,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "'DM Sans', sans-serif", color: '#2C1810' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "var(--font-body)", color: '#2C1810' }}>
       <style>{`
         @keyframes skeletonPulse {
           0%, 100% { background-color: #F0E0CF; }
@@ -443,7 +443,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Product name */}
-            <h1 style={{ ...fadeIn(280), fontFamily: "'Playfair Display', serif", fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 700, color: '#2C1810', lineHeight: 1.2, marginTop: '12px' }}>
+            <h1 style={{ ...fadeIn(280), fontFamily: "var(--font-heading)", fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 800, color: '#2C1810', lineHeight: 1.1, marginTop: '12px', letterSpacing: '-0.03em' }}>
               {product.name}
             </h1>
 
@@ -459,10 +459,10 @@ export default function ProductDetail() {
             {/* Price */}
             <div style={{ ...fadeIn(440), marginTop: '22px' }}>
               <div style={{
-                fontFamily: "'Playfair Display', serif", fontSize: '2.2rem', fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: '2.5rem', fontWeight: 800,
                 background: 'linear-gradient(135deg, #C87941, #8B4513)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                display: 'inline-block'
+                display: 'inline-block', letterSpacing: '-0.02em'
               }}>
                 ₹{Number(product.price).toFixed(2)}
               </div>
@@ -528,7 +528,7 @@ export default function ProductDetail() {
                   border: isAvailable ? 'none' : '2.5px solid #C87941', 
                   fontSize: '1rem', fontWeight: 700,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                  cursor: 'pointer', fontFamily: "var(--font-body)",
                   boxShadow: isAvailable ? '0 4px 20px rgba(200,121,65,0.35)' : 'none',
                   transition: 'all 0.25s ease',
                   opacity: 1
@@ -569,7 +569,7 @@ export default function ProductDetail() {
                     background: 'white', border: '2px solid #C87941', color: '#C87941',
                     fontSize: '1rem', fontWeight: 600,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                    cursor: 'pointer', fontFamily: "var(--font-body)",
                     transition: 'all 0.25s ease'
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF0E3'; e.currentTarget.style.transform = 'translateY(-2px)' }}
@@ -642,7 +642,7 @@ export default function ProductDetail() {
         {/* Related Products */}
         {related.length > 0 && (
           <div style={{ marginTop: '64px', opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 400ms' }}>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.3rem', color: '#2C1810', marginBottom: '24px' }}>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '1.5rem', fontWeight: 700, color: '#2C1810', marginBottom: '24px' }}>
               You May Also Like
             </h2>
             <div style={{
@@ -657,7 +657,7 @@ export default function ProductDetail() {
                 <div key={p.id} style={{ minWidth: isMobile ? '240px' : undefined }}>
                   <ProductCard 
                     product={p} 
-                    isFavourite={favouriteIds.has(Number(p.id))}
+                    isFavourite={favouriteIds.has(p.id)}
                     onToggleFavourite={toggleFavourite}
                   />
                 </div>

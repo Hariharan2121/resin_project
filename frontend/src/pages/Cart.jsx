@@ -92,7 +92,7 @@ export default function Cart() {
 
   if (ordered) {
     return (
-      <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans overflow-hidden">
+      <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans overflow-hidden" style={{ fontFamily: 'var(--font-body)' }}>
         <div className="fixed inset-0 pointer-events-none opacity-[0.12]" 
              style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
         <Navbar />
@@ -138,7 +138,7 @@ export default function Cart() {
              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F5E6D3] text-[#C87941] text-[10px] font-bold rounded-full uppercase mb-4 tracking-widest shadow-sm">
                <Sparkles size={10} /> Your Selection
              </div>
-             <h1 className="text-5xl font-serif font-bold text-[#2C1810]">The <span className="italic text-[#C87941]">Curation</span></h1>
+              <h1 className="text-5xl md:text-6xl font-sans font-extrabold text-[#2C1810]" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.03em' }}>The <span className="italic text-[#C87941]">Curation</span></h1>
            </div>
            {items.length > 0 && (
              <div className="text-right">
@@ -177,11 +177,11 @@ export default function Cart() {
 
                   {/* Item Details */}
                   <div className="flex-1 min-w-0 text-center sm:text-left">
-                    <h3 className="text-xl md:text-2xl font-serif font-bold text-[#2C1810] mb-2 leading-tight group-hover:text-[#C87941] transition-colors">
+                    <h3 className="text-xl md:text-2xl font-sans font-extrabold text-[#2C1810] mb-2 leading-tight group-hover:text-[#C87941] transition-colors" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
                       {item.name}
                     </h3>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
-                      <span className="text-[#C87941] font-bold text-lg">{fmt(item.price)}</span>
+                      <span className="text-[#C87941] font-extrabold text-xl" style={{ fontFamily: 'var(--font-heading)' }}>{fmt(item.price)}</span>
                       <div className="hidden sm:block h-4 w-[1px] bg-[#EDD9C0]" />
                       {item.is_available === false ? (
                         <span className="text-[10px] text-white uppercase tracking-widest font-bold bg-[#E74C3C] px-3 py-1 rounded-full shadow-sm animate-pulse">Out of Stock</span>
@@ -251,7 +251,7 @@ export default function Cart() {
                         <span className="text-[#5C3D2A] font-medium leading-snug">{item.name}</span>
                         <span className="text-[10px] text-[#A0622E] font-bold uppercase tracking-tighter mt-1">Acquiring: {item.quantity}</span>
                       </div>
-                      <span className="text-[#2C1810] font-bold font-serif whitespace-nowrap">{fmt(item.price * item.quantity)}</span>
+                      <span className="text-[#2C1810] font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-heading)' }}>{fmt(item.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
@@ -269,7 +269,7 @@ export default function Cart() {
                   <div className="flex justify-between items-end pt-8 bg-gradient-to-t from-[#FBF5EE]/50 to-transparent p-4 -mx-4 rounded-b-2xl">
                     <span className="text-[#2C1810] font-bold text-lg uppercase tracking-wider">Total Investment</span>
                     <div className="text-right">
-                       <span className="text-3xl font-serif font-bold text-[#C87941]">{fmt(totalPrice)}</span>
+                       <span className="text-4xl font-extrabold text-[#C87941]" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>{fmt(totalPrice)}</span>
                        <p className="text-[9px] text-[#9C7B65] uppercase tracking-widest font-black mt-1">Luxe Inclusive</p>
                     </div>
                   </div>
@@ -290,10 +290,7 @@ export default function Cart() {
                   }}>
                     <Info size={18} style={{ color: '#C87941', flexShrink: 0, marginTop: '1px' }} />
                     <div>
-                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.875rem', fontWeight: 600, color: '#2C1810', marginBottom: '2px' }}>
-                        Ready to order?
-                      </p>
-                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', color: '#7A5542', lineHeight: 1.5 }}>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: '0.82rem', color: '#7A5542', lineHeight: 1.5 }}>
                         You'll be asked to sign in when you confirm. It's quick and free!
                       </p>
                     </div>

@@ -54,10 +54,10 @@ const INCLUSIONS = [
 ]
 
 const FONTS = [
-  { id: 'Serif', label: 'Serif', family: "'Playfair Display', serif" },
-  { id: 'Sans', label: 'Sans', family: "'DM Sans', sans-serif" },
+  { id: 'Serif', label: 'Serif', family: "var(--font-heading)" },
+  { id: 'Sans', label: 'Sans', family: "var(--font-body)" },
   { id: 'Script', label: 'Script', family: "'Dancing Script', cursive" },
-  { id: 'Bold', label: 'Bold', family: "'DM Sans', sans-serif", weight: 800 },
+  { id: 'Bold', label: 'Bold', family: "var(--font-heading)", weight: 800 },
 ]
 
 const TEXT_COLORS = [
@@ -360,12 +360,12 @@ export default function CustomizeStudio() {
     cursor: 'default',
   }
 
-  const fontFamily = state.selectedFont.weight === 800 ? "'DM Sans', sans-serif" : state.selectedFont.family
+  const fontFamily = state.selectedFont.weight === 800 ? "var(--font-heading)" : state.selectedFont.family
   const fontWeight = state.selectedFont.weight || 600
 
   // ── RENDER ────────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif", backgroundColor: '#FBF5EE' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "var(--font-body)", backgroundColor: '#FBF5EE' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
         @keyframes floatAnim {
@@ -427,7 +427,7 @@ export default function CustomizeStudio() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem', background: 'linear-gradient(135deg, #C87941, #8B4513)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', margin: 0 }}>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '1.1rem', background: 'linear-gradient(135deg, #C87941, #8B4513)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', margin: 0 }}>
               Design Studio
             </h2>
             <p style={{ fontSize: '0.72rem', color: '#9C7B65', margin: 0 }}>Customize your resin product</p>
@@ -539,7 +539,7 @@ export default function CustomizeStudio() {
               value={state.customText}
               onChange={e => updateState({ customText: e.target.value.slice(0, 50) })}
               placeholder="Your name, quote, or message..."
-              style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '0.9rem', fontFamily: "'DM Sans', sans-serif" }}
+              style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '0.9rem', fontFamily: "var(--font-body)" }}
             />
           </div>
           <div style={{ textAlign: 'right', fontSize: '0.72rem', color: state.customText.length >= 45 ? '#E74C3C' : '#B08060', marginTop: '4px' }}>
@@ -670,7 +670,7 @@ export default function CustomizeStudio() {
             width: '100%', minHeight: '80px', padding: '12px 14px',
             border: '1.5px solid #DEC5A8', borderRadius: '10px',
             background: '#FDFAF6', resize: 'none', outline: 'none',
-            fontSize: '0.88rem', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6,
+            fontSize: '0.88rem', fontFamily: "var(--font-body)", lineHeight: 1.6,
             boxSizing: 'border-box', color: '#2C1810'
           }}
         />
@@ -792,7 +792,7 @@ export default function CustomizeStudio() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '0.875rem', color: '#7A5542' }}>Estimated Price:</span>
             <span style={{
-              fontFamily: "'Playfair Display', serif", fontSize: '1.3rem',
+              fontFamily: "var(--font-heading)", fontSize: '1.3rem',
               background: state.selectedProduct ? 'linear-gradient(135deg, #C87941, #8B4513)' : '#B08060',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               fontWeight: 700

@@ -115,7 +115,7 @@ export default function Signup() {
   const styles = {
     container: {
       backgroundColor: '#FBF5EE',
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "var(--font-body)",
       color: '#2C1810',
     },
     leftPanel: {
@@ -160,7 +160,7 @@ export default function Signup() {
       zIndex: 1
     },
     brandName: {
-      fontFamily: "'Playfair Display', serif",
+      fontFamily: "var(--font-heading)",
       fontSize: '3rem',
       fontWeight: 800,
       background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)',
@@ -227,9 +227,9 @@ export default function Signup() {
         </div>
 
         <div style={{ position: 'relative', marginTop: '16px', marginBottom: '40px', opacity: 1 }}>
-          <span style={{ position: 'absolute', left: '-5px', top: '-10px', fontSize: '1.8rem', color: 'rgba(200,121,65,0.35)', fontFamily: "'Playfair Display', serif" }}>"</span>
+          <span style={{ position: 'absolute', left: '-5px', top: '-10px', fontSize: '1.8rem', color: 'rgba(200,121,65,0.35)', fontFamily: "var(--font-heading)" }}>"</span>
           <p style={styles.tagline}>Handcrafted with love, crafted for you</p>
-          <span style={{ position: 'absolute', right: '-5px', bottom: '-15px', fontSize: '1.8rem', color: 'rgba(200,121,65,0.35)', fontFamily: "'Playfair Display', serif" }}>"</span>
+          <span style={{ position: 'absolute', right: '-5px', bottom: '-15px', fontSize: '1.8rem', color: 'rgba(200,121,65,0.35)', fontFamily: "var(--font-heading)" }}>"</span>
         </div>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
@@ -264,11 +264,11 @@ export default function Signup() {
         }}>
           <div className="mobile-brand">
             <img src="/images/icon.jpg?v=3" alt="RKL Logo" style={{ height: '64px', width: '64px', objectFit: 'cover', borderRadius: '50%', marginBottom: '12px' }} />
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.05em' }}>RKL Trove</h2>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #8B4513 0%, #C87941 50%, #D4956A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.05em' }}>RKL Trove</h2>
             <div style={{ width: '40px', height: '2px', background: '#C87941', marginTop: '4px' }} />
           </div>
           <div style={{ width: '36px', height: '3px', background: 'linear-gradient(90deg, #C87941, #E8A96E)', borderRadius: '2px', marginBottom: '12px', opacity: mounted ? 1 : 0, animation: 'fadeIn 0.4s ease-out forwards', animationDelay: '350ms' }} />
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', fontWeight: 700, color: '#2C1810', lineHeight: 1.2, opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.45s ease-out forwards', animationDelay: '400ms' }}>Create Account</h2>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '1.75rem', fontWeight: 700, color: '#2C1810', lineHeight: 1.2, opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.45s ease-out forwards', animationDelay: '400ms' }}>Create Account</h2>
           <p style={{ fontSize: '0.9rem', color: '#9C7B65', marginTop: '6px', marginBottom: '32px', opacity: mounted ? 1 : 0, animation: 'fadeSlideUp 0.4s ease-out forwards', animationDelay: '480ms' }}>Join us and discover handcrafted resin art</p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -280,7 +280,7 @@ export default function Signup() {
                   type="text"
                   name="name"
                   placeholder="Theodore Trove"
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "var(--font-body)", fontSize: '0.95rem' }}
                   value={form.name}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('name')}
@@ -297,7 +297,7 @@ export default function Signup() {
                   type="email"
                   name="email"
                   placeholder="exclusive@rkl.com"
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "var(--font-body)", fontSize: '0.95rem' }}
                   value={form.email}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('email')}
@@ -316,7 +316,7 @@ export default function Signup() {
                   type={showPass ? 'text' : 'password'}
                   name="password"
                   placeholder="Min. 6 characters"
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "var(--font-body)", fontSize: '0.95rem' }}
                   value={form.password}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('password')}
@@ -345,7 +345,7 @@ export default function Signup() {
                   type={showConfirmPass ? 'text' : 'password'}
                   name="confirmPassword"
                   placeholder="Repeat keys"
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', height: '100%', fontFamily: "var(--font-body)", fontSize: '0.95rem' }}
                   value={form.confirmPassword}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('confirmPassword')}

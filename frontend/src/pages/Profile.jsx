@@ -279,7 +279,7 @@ export default function Profile() {
     fontSize: '0.95rem', 
     fontWeight: 500,
     color: '#1A0F00',
-    fontFamily: "'DM Sans', sans-serif" 
+    fontFamily: "var(--font-body)" 
   }
 
   const completeness = calculateCompleteness()
@@ -311,7 +311,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="profile-page-container" style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "'DM Sans', sans-serif", paddingTop: '72px' }}>
+    <div className="profile-page-container" style={{ minHeight: '100vh', backgroundColor: '#FBF5EE', fontFamily: "var(--font-body)", paddingTop: '72px' }}>
       {/* ADDING CSS OVERRIDES FOR PLACEHOLDERS IN HEAD */}
       <style dangerouslySetInnerHTML={{__html:`
         .profile-page-container input::placeholder,
@@ -378,7 +378,7 @@ export default function Profile() {
               border: '4px solid #FFFFFF',
               boxShadow: '0 8px 32px rgba(200,121,65,0.30)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: "'Playfair Display', serif", fontSize: '2.8rem', fontWeight: 700, color: 'white',
+              fontFamily: "var(--font-heading)", fontSize: '2.8rem', fontWeight: 700, color: 'white',
               cursor: 'pointer', position: 'relative', overflow: 'hidden'
             }}
               className="group"
@@ -394,7 +394,7 @@ export default function Profile() {
                 onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
               >
                 <Camera size={20} color="white" />
-                <span style={{ fontSize: '0.7rem', color: 'white', marginTop: '4px', fontFamily: "'DM Sans', sans-serif" }}>Edit</span>
+                <span style={{ fontSize: '0.7rem', color: 'white', marginTop: '4px', fontFamily: "var(--font-body)" }}>Edit</span>
               </div>
             </div>
           </div>
@@ -416,7 +416,7 @@ export default function Profile() {
             <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '32px 28px', border: '1px solid #F0E0CF', boxShadow: '0 4px 20px rgba(44,26,14,0.06)', textAlign: 'center' }}>
               {/* Name */}
               <h2 style={{
-                fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: '1.4rem', fontWeight: 700,
                 background: 'linear-gradient(135deg, #8B4513, #C87941, #D4956A)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
               }}>
@@ -508,7 +508,7 @@ export default function Profile() {
             {/* Edit Form Card */}
             <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: isMobile ? '24px 20px' : '36px 40px', border: '1px solid #F0E0CF', boxShadow: '0 4px 20px rgba(44,26,14,0.06)' }}>
               <div style={{ width: '36px', height: '3px', background: 'linear-gradient(90deg, #C87941, #E8A96E)', borderRadius: '2px', marginBottom: '14px' }} />
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', fontWeight: 700, color: '#1A0F00' }}>My Profile</h2>
+              <h2 style={{ fontFamily: "var(--font-heading)", fontSize: '1.5rem', fontWeight: 700, color: '#1A0F00' }}>My Profile</h2>
               <p style={{ fontSize: '0.875rem', color: '#5C3D2A', marginTop: '4px', marginBottom: '28px' }}>Manage your personal information</p>
 
               <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -658,7 +658,7 @@ export default function Profile() {
                 {/* Form Action Row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                   {hasChanges ? (
-                    <button type="button" onClick={handleReset} style={{ background: 'none', border: 'none', fontSize: '0.875rem', color: '#9C7B65', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: "'DM Sans', sans-serif", transition: 'color 0.2s' }}
+                    <button type="button" onClick={handleReset} style={{ background: 'none', border: 'none', fontSize: '0.875rem', color: '#9C7B65', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: "var(--font-body)", transition: 'color 0.2s' }}
                       onMouseEnter={(e) => e.target.style.color = '#C87941'}
                       onMouseLeave={(e) => e.target.style.color = '#9C7B65'}
                     >
@@ -677,7 +677,7 @@ export default function Profile() {
                       transition: 'all 0.3s ease', 
                       opacity: isSaving ? 0.85 : 1,
                       transform: saveSuccess ? 'scale(1.02)' : 'none',
-                      fontFamily: "'DM Sans', sans-serif",
+                      fontFamily: "var(--font-body)",
                       boxShadow: !isSaving ? '0 4px 20px rgba(200,121,65,0.35)' : 'none'
                     }}
                   >
@@ -697,7 +697,7 @@ export default function Profile() {
             <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: isMobile ? '24px 20px' : '36px 40px', border: '1px solid #F0E0CF', boxShadow: '0 4px 20px rgba(44,26,14,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                 <div>
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, color: '#1A0F00' }}>Order History</h3>
+                  <h3 style={{ fontFamily: "var(--font-heading)", fontSize: '1.4rem', fontWeight: 700, color: '#1A0F00' }}>Order History</h3>
                   <p style={{ fontSize: '0.85rem', color: '#5C3D2A', marginTop: '2px' }}>Track your resin art acquisitions</p>
                 </div>
                 <div style={{ background: '#FEF0E3', padding: '8px 14px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -784,7 +784,7 @@ export default function Profile() {
                   style={{
                     border: '1.5px solid #C0392B', color: '#C0392B', borderRadius: '8px',
                     padding: '8px 16px', fontSize: '0.875rem', fontWeight: 600, background: 'transparent',
-                    cursor: 'pointer', transition: 'all 0.2s', fontFamily: "'DM Sans', sans-serif"
+                    cursor: 'pointer', transition: 'all 0.2s', fontFamily: "var(--font-body)"
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = '#C0392B'; e.currentTarget.style.color = 'white' }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#C0392B' }}
@@ -811,20 +811,20 @@ export default function Profile() {
             boxShadow: '0 24px 64px rgba(44,26,14,0.25)'
           }}>
             <AlertTriangle size={40} style={{ color: '#C0392B', margin: '0 auto 16px' }} />
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#2C1810', marginBottom: '12px' }}>Delete Account?</h3>
+            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: '1.2rem', color: '#2C1810', marginBottom: '12px' }}>Delete Account?</h3>
             <p style={{ fontSize: '0.875rem', color: '#5C3D2A', lineHeight: 1.6, marginBottom: '28px' }}>
               Are you sure you want to delete your account? All your data including favourites and orders will be lost permanently.
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 onClick={() => setShowDeleteModal(false)}
-                style={{ flex: 1, height: '44px', border: '2px solid #C87941', color: '#C87941', background: 'transparent', borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
+                style={{ flex: 1, height: '44px', border: '2px solid #C87941', color: '#C87941', background: 'transparent', borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', fontFamily: "var(--font-body)" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAccount} disabled={deleting}
-                style={{ flex: 1, height: '44px', background: 'linear-gradient(135deg, #C0392B, #922B21)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: "'DM Sans', sans-serif" }}
+                style={{ flex: 1, height: '44px', background: 'linear-gradient(135deg, #C0392B, #922B21)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: "var(--font-body)" }}
               >
                 {deleting ? <Loader2 size={16} style={{ animation: 'spinLoader 0.7s linear infinite' }} /> : null}
                 Yes, Delete

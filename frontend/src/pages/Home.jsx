@@ -61,13 +61,13 @@ export default function Home() {
     if (!user) {
       // Load guest favourites from localStorage
       const guestFavs = JSON.parse(localStorage.getItem('rkltrove_guest_favourites') || '[]');
-      setFavouriteIds(new Set(guestFavs.map(Number)));
+      setFavouriteIds(new Set(guestFavs));
       return;
     }
     const fetchFavs = async () => {
       try {
         const res = await getFavourites();
-        const ids = new Set((res.data.data || []).map((p) => Number(p.id)));
+        const ids = new Set((res.data.data || []).map((p) => p.id));
         setFavouriteIds(ids);
       } catch (err) {
         console.error('❌ Failed to fetch favourites:', err);
@@ -77,7 +77,7 @@ export default function Home() {
   }, [user])
 
   const toggleFavourite = useCallback(async (prodId) => {
-    const productId = Number(prodId);
+    const productId = prodId;
     const isFav = favouriteIds.has(productId);
 
     setFavouriteIds((prev) => {
@@ -155,7 +155,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans selection:bg-[#C87941]/20">
+    <div className="min-h-screen bg-[#FBF5EE] text-[#2C1810] font-sans selection:bg-[#C87941]/20" style={{ fontFamily: 'var(--font-body)' }}>
       {/* Background Dot Grid */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.12]"
         style={{ backgroundImage: 'radial-gradient(#C87941 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
@@ -168,7 +168,7 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F5E6D3] text-[#C87941] text-xs font-bold tracking-widest uppercase mb-6 shadow-sm border border-[#EDD9C0]/50">
             <Star size={12} className="fill-current" /> Artisanal Excellence
           </div>
-          <h1 className="text-5xl md:text-7xl font-serif font-bold text-[#2C1810] leading-tight mb-6">
+          <h1 className="text-5xl md:text-7xl font-sans font-extrabold text-[#2C1810] leading-[1.1] mb-6 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
             Handcrafted Resin <br /> keepsakes made to  <span className="text-[#C87941] italic">Preserve Your Moments</span>
           </h1>
           <p className="text-lg md:text-xl text-[#7A5542] max-w-2xl mx-auto font-light leading-relaxed mb-10">
@@ -203,12 +203,12 @@ export default function Home() {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               marginTop: '16px', maxWidth: '500px', margin: '16px auto 0'
             }}>
-              <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '0.82rem', color: '#5C3D2A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: '0.82rem', color: '#5C3D2A', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Sparkles size={15} color="#C87941" />
                 Sign up to save favourites and track your orders
               </span>
               <span
-                style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '0.82rem', fontWeight: 600, color: '#C87941', cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: '12px' }}
+                style={{ fontFamily: "var(--font-body)", fontSize: '0.82rem', fontWeight: 600, color: '#C87941', cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: '12px' }}
                 onClick={() => navigate('/signup')}
                 onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
                 onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
@@ -372,7 +372,7 @@ export default function Home() {
         <section className="flex-1 w-full">
           <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
             <div id="collection-header">
-              <h2 className="text-3xl font-serif font-bold text-[#2C1810]">Our Collection</h2>
+              <h2 className="text-3xl font-sans font-extrabold text-[#2C1810]" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>Our Collection</h2>
               {search && (
                 <p className="text-[0.82rem] text-[#7A5542] mt-1 animate-fade-in">
                   Showing {filteredProducts.length} results for <span className="font-bold text-[#C87941]">"{search}"</span>
@@ -428,7 +428,7 @@ export default function Home() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  isFavourite={favouriteIds.has(Number(product.id))}
+                  isFavourite={favouriteIds.has(product.id)}
                   onToggleFavourite={toggleFavourite}
                   onHover={handleProductHover}
                 />
